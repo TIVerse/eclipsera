@@ -4,7 +4,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/eclipsera?style=for-the-badge&logo=pypi&logoColor=white&label=PyPI%20Version)](https://pypi.org/project/eclipsera/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/eclipsera?style=for-the-badge&color=orange&label=Downloads&logo=pypi)
-[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=open-source-initiative&logoColor=white)](https://opensource.org/licenses/MIT)
 ![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)
 ![Coverage](https://img.shields.io/badge/Coverage-88%25-brightgreen?style=for-the-badge&logo=codecov&logoColor=white)
@@ -105,7 +105,7 @@ pip install eclipsera
 ```
 
 **Requirements:**
-- Python 3.8+
+- Python 3.11+
 - NumPy
 - SciPy
 - matplotlib (optional, for plotting)
@@ -267,7 +267,7 @@ print(f"Best score: {grid.best_score_:.4f}")
 - **Test Coverage**: 88%
 - **Total Tests**: 618 (passing)
 - **Modules**: 12
-- **Python Version**: 3.8+
+- **Python Version**: 3.11+
 
 ## 🤝 Contributing
 
@@ -322,7 +322,7 @@ If you use Eclipsera in your research, please cite:
 - **Type-Safe**: Complete type hints throughout
 - **Well-Documented**: Google-style docstrings for all APIs
 - **Tested**: 88% test coverage with 618 passing tests
-- **Modern**: Built for Python 3.8+ with best practices
+- **Modern**: Built for Python 3.11+ with best practices
 - **Minimal Dependencies**: Only NumPy and SciPy required
 - **Extensible**: Easy to add custom estimators
 

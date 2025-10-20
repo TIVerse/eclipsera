@@ -14,7 +14,7 @@ Thank you for your interest in contributing to Eclipsera! This document provides
 
 2. **Create Virtual Environment**
    ```bash
-   python3.12 -m venv venv
+   python3.11 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
@@ -227,7 +227,7 @@ What you expected to happen.
 
 **Environment:**
 - Eclipsera version: [e.g., 0.1.0]
-- Python version: [e.g., 3.12.0]
+- Python version: [e.g., 3.11.0]
 - OS: [e.g., Ubuntu 22.04]
 - Dependencies: [relevant package versions]
 

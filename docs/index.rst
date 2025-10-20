@@ -78,7 +78,7 @@ Installation
 
 **Requirements:**
 
-- Python 3.8+
+- Python 3.11+
 - NumPy
 - SciPy
 - matplotlib (optional, for plotting)
