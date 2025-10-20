@@ -4,6 +4,7 @@ Eclipsera is a comprehensive machine learning framework with 68 algorithms
 spanning classical ML, clustering, dimensionality reduction, manifold learning,
 AutoML, and explainability.
 """
+
 from . import (
     automl,
     cli,
@@ -28,20 +29,20 @@ from .__version__ import (
 
 # Import commonly used items to top level
 from .core.base import (
-    BaseEstimator,
     BaseClassifier,
+    BaseEstimator,
     BaseRegressor,
     BaseTransformer,
     clone,
 )
 from .core.metrics import (
     accuracy_score,
-    precision_score,
-    recall_score,
     f1_score,
-    r2_score,
-    mean_squared_error,
     mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
 )
 from .core.validation import (
     check_array,

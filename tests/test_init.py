@@ -1,4 +1,5 @@
 """Tests for package initialization."""
+
 import sys
 from io import StringIO
 
@@ -16,11 +17,11 @@ def test_show_versions(monkeypatch):
     # Capture stdout
     captured_output = StringIO()
     monkeypatch.setattr(sys, "stdout", captured_output)
-    
+
     eclipsera.show_versions()
-    
+
     output = captured_output.getvalue()
-    
+
     # Check key components are in output
     assert "Eclipsera version" in output
     assert "Python version" in output
@@ -30,8 +31,8 @@ def test_show_versions(monkeypatch):
 
 def test_imports():
     """Test that key modules are importable."""
-    from eclipsera import core, ml, preprocessing, model_selection, pipeline
-    
+    from eclipsera import core, ml, model_selection, pipeline, preprocessing
+
     assert core is not None
     assert ml is not None
     assert preprocessing is not None

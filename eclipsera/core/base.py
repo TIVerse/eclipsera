@@ -3,6 +3,7 @@
 This module provides the foundational base classes that all estimators inherit from,
 defining the common API and behavior across the framework.
 """
+
 import copy
 import inspect
 from abc import ABCMeta, abstractmethod
@@ -53,16 +54,17 @@ class BaseEstimator(metaclass=ABCMeta):
         """
         # Get the constructor signature
         init_signature = inspect.signature(cls.__init__)
-        
+
         # Extract parameters, excluding 'self'
         parameters = [
-            p for p in init_signature.parameters.values()
+            p
+            for p in init_signature.parameters.values()
             if p.name != "self" and p.kind != p.VAR_KEYWORD
         ]
-        
+
         # Sort parameters alphabetically
         param_names = sorted([p.name for p in parameters])
-        
+
         return param_names
 
     def get_params(self, deep: bool = True) -> dict[str, Any]:
@@ -80,7 +82,7 @@ class BaseEstimator(metaclass=ABCMeta):
             Parameter names mapped to their values.
         """
         params = {}
-        
+
         for key in self._get_param_names():
             value = getattr(self, key)
             if deep and hasattr(value, "get_params"):
@@ -88,7 +90,7 @@ class BaseEstimator(metaclass=ABCMeta):
                 deep_items = value.get_params(deep=True).items()
                 params.update((key + "__" + k, val) for k, val in deep_items)
             params[key] = value
-        
+
         return params
 
     def set_params(self, **params: Any) -> "BaseEstimator":
@@ -111,9 +113,9 @@ class BaseEstimator(metaclass=ABCMeta):
         """
         if not params:
             return self
-        
+
         valid_params = self.get_params(deep=True)
-        
+
         nested_params = {}
         for key, value in params.items():
             if "__" in key:
@@ -129,12 +131,12 @@ class BaseEstimator(metaclass=ABCMeta):
                         f"Valid parameters are: {list(valid_params.keys())}"
                     )
                 setattr(self, key, value)
-        
+
         # Set nested parameters
         for key, sub_params in nested_params.items():
             if hasattr(getattr(self, key), "set_params"):
                 getattr(self, key).set_params(**sub_params)
-        
+
         return self
 
     def __repr__(self) -> str:
@@ -147,7 +149,7 @@ class BaseEstimator(metaclass=ABCMeta):
         """
         class_name = self.__class__.__name__
         params = self.get_params(deep=False)
-        
+
         # Format parameters
         param_strs = []
         for key, value in params.items():
@@ -155,7 +157,7 @@ class BaseEstimator(metaclass=ABCMeta):
                 param_strs.append(f"{key}={value!r}")
             else:
                 param_strs.append(f"{key}={value}")
-        
+
         return f"{class_name}({', '.join(param_strs)})"
 
     def __getstate__(self) -> dict[str, Any]:
@@ -208,7 +210,7 @@ def clone(estimator: BaseEstimator, safe: bool = True) -> BaseEstimator:
     {'fit_intercept': True}
     """
     estimator_type = type(estimator)
-    
+
     # Check if estimator has get_params
     if not hasattr(estimator, "get_params"):
         if safe:
@@ -217,21 +219,21 @@ def clone(estimator: BaseEstimator, safe: bool = True) -> BaseEstimator:
                 "it does not have a get_params method."
             )
         return copy.deepcopy(estimator)
-    
+
     # Get parameters and create new instance
     klass = estimator.__class__
     new_object_params = estimator.get_params(deep=False)
-    
+
     # Clone nested estimators
     for name, param in new_object_params.items():
         if hasattr(param, "get_params"):
             new_object_params[name] = clone(param, safe=safe)
-    
+
     new_object = klass(**new_object_params)
-    
+
     # Copy additional attributes if needed
     params_set = new_object.get_params(deep=False)
-    
+
     return new_object
 
 
@@ -240,7 +242,9 @@ class ClassifierMixin:
 
     _estimator_type = "classifier"
 
-    def score(self, X: np.ndarray, y: np.ndarray, sample_weight: Optional[np.ndarray] = None) -> float:
+    def score(
+        self, X: np.ndarray, y: np.ndarray, sample_weight: Optional[np.ndarray] = None
+    ) -> float:
         """Return the mean accuracy on the given test data and labels.
 
         Parameters
@@ -258,7 +262,7 @@ class ClassifierMixin:
             Mean accuracy of self.predict(X) wrt. y.
         """
         from .metrics import accuracy_score
-        
+
         predictions = self.predict(X)
         return accuracy_score(y, predictions, sample_weight=sample_weight)
 
@@ -268,7 +272,9 @@ class RegressorMixin:
 
     _estimator_type = "regressor"
 
-    def score(self, X: np.ndarray, y: np.ndarray, sample_weight: Optional[np.ndarray] = None) -> float:
+    def score(
+        self, X: np.ndarray, y: np.ndarray, sample_weight: Optional[np.ndarray] = None
+    ) -> float:
         """Return the coefficient of determination R^2 of the prediction.
 
         Parameters
@@ -286,7 +292,7 @@ class RegressorMixin:
             R^2 of self.predict(X) wrt. y.
         """
         from .metrics import r2_score
-        
+
         predictions = self.predict(X)
         return r2_score(y, predictions, sample_weight=sample_weight)
 
@@ -294,7 +300,9 @@ class RegressorMixin:
 class TransformerMixin:
     """Mixin class for all transformers in Eclipsera."""
 
-    def fit_transform(self, X: np.ndarray, y: Optional[np.ndarray] = None, **fit_params: Any) -> np.ndarray:
+    def fit_transform(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None, **fit_params: Any
+    ) -> np.ndarray:
         """Fit to data, then transform it.
 
         Parameters
@@ -503,7 +511,9 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     """Abstract base class for transformers."""
 
     @abstractmethod
-    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None, **kwargs: Any) -> "BaseTransformer":
+    def fit(
+        self, X: np.ndarray, y: Optional[np.ndarray] = None, **kwargs: Any
+    ) -> "BaseTransformer":
         """Fit the transformer.
 
         Parameters

@@ -3,6 +3,7 @@
 This module provides a comprehensive set of metrics for classification, regression,
 clustering, and ranking tasks.
 """
+
 from typing import Any, Literal, Optional, Union
 
 import numpy as np
@@ -46,12 +47,12 @@ def accuracy_score(
     y_true = column_or_1d(y_true)
     y_pred = column_or_1d(y_pred)
     check_consistent_length(y_true, y_pred)
-    
+
     if sample_weight is None:
         score = np.sum(y_true == y_pred)
     else:
         score = np.sum(sample_weight[y_true == y_pred])
-    
+
     if normalize:
         n_samples = len(y_true) if sample_weight is None else np.sum(sample_weight)
         return score / n_samples
@@ -100,22 +101,22 @@ def precision_recall_fscore_support(
     y_true = column_or_1d(y_true)
     y_pred = column_or_1d(y_pred)
     check_consistent_length(y_true, y_pred)
-    
+
     if labels is None:
         labels = np.unique(np.concatenate([y_true, y_pred]))
-    
+
     n_labels = len(labels)
-    
+
     # Compute true positives, false positives, false negatives
     tp = np.zeros(n_labels, dtype=np.float64)
     fp = np.zeros(n_labels, dtype=np.float64)
     fn = np.zeros(n_labels, dtype=np.float64)
     support = np.zeros(n_labels, dtype=np.int64)
-    
+
     for i, label in enumerate(labels):
         true_mask = y_true == label
         pred_mask = y_pred == label
-        
+
         if sample_weight is None:
             tp[i] = np.sum(true_mask & pred_mask)
             fp[i] = np.sum(~true_mask & pred_mask)
@@ -126,17 +127,17 @@ def precision_recall_fscore_support(
             fp[i] = np.sum(sample_weight[~true_mask & pred_mask])
             fn[i] = np.sum(sample_weight[true_mask & ~pred_mask])
             support[i] = np.sum(sample_weight[true_mask])
-    
+
     # Compute precision, recall, f-score
     with np.errstate(divide="ignore", invalid="ignore"):
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
-        
+
         if beta == 0:
             f_score = precision
         else:
             f_score = (1 + beta**2) * precision * recall / (beta**2 * precision + recall)
-    
+
     # Handle zero division
     if zero_division == "warn":
         precision[np.isnan(precision)] = 0.0
@@ -146,36 +147,40 @@ def precision_recall_fscore_support(
         precision[np.isnan(precision)] = zero_division
         recall[np.isnan(recall)] = zero_division
         f_score[np.isnan(f_score)] = zero_division
-    
+
     # Apply averaging
     if average == "micro":
         tp_sum = np.sum(tp)
         fp_sum = np.sum(fp)
         fn_sum = np.sum(fn)
-        
+
         precision = tp_sum / (tp_sum + fp_sum) if (tp_sum + fp_sum) > 0 else 0.0
         recall = tp_sum / (tp_sum + fn_sum) if (tp_sum + fn_sum) > 0 else 0.0
-        
+
         if beta == 0:
             f_score = precision
         else:
-            f_score = (1 + beta**2) * precision * recall / (beta**2 * precision + recall) if (beta**2 * precision + recall) > 0 else 0.0
-        
+            f_score = (
+                (1 + beta**2) * precision * recall / (beta**2 * precision + recall)
+                if (beta**2 * precision + recall) > 0
+                else 0.0
+            )
+
         support = np.sum(support)
-    
+
     elif average == "macro":
         precision = np.mean(precision)
         recall = np.mean(recall)
         f_score = np.mean(f_score)
         support = None
-    
+
     elif average == "weighted":
         weights = support / np.sum(support)
         precision = np.sum(precision * weights)
         recall = np.sum(recall * weights)
         f_score = np.sum(f_score * weights)
         support = np.sum(support)
-    
+
     elif average == "binary":
         if n_labels != 2:
             raise ValueError("binary averaging requires exactly 2 labels")
@@ -184,7 +189,7 @@ def precision_recall_fscore_support(
         recall = recall[pos_idx]
         f_score = f_score[pos_idx]
         support = support[pos_idx]
-    
+
     return precision, recall, f_score, support
 
 
@@ -241,16 +246,16 @@ def confusion_matrix(
     """
     y_true = column_or_1d(y_true)
     y_pred = column_or_1d(y_pred)
-    
+
     if labels is None:
         labels = np.unique(np.concatenate([y_true, y_pred]))
-    
+
     n_labels = len(labels)
     label_to_ind = {label: i for i, label in enumerate(labels)}
-    
+
     # Build confusion matrix
     CM = np.zeros((n_labels, n_labels), dtype=np.int64 if sample_weight is None else np.float64)
-    
+
     for idx, (true_label, pred_label) in enumerate(zip(y_true, y_pred)):
         if true_label in label_to_ind and pred_label in label_to_ind:
             i = label_to_ind[true_label]
@@ -259,7 +264,7 @@ def confusion_matrix(
                 CM[i, j] += 1
             else:
                 CM[i, j] += sample_weight[idx]
-    
+
     # Normalize if requested
     if normalize == "true":
         CM = CM / CM.sum(axis=1, keepdims=True)
@@ -267,7 +272,7 @@ def confusion_matrix(
         CM = CM / CM.sum(axis=0, keepdims=True)
     elif normalize == "all":
         CM = CM / CM.sum()
-    
+
     return CM
 
 
@@ -298,26 +303,28 @@ def r2_score(
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
     check_consistent_length(y_true, y_pred)
-    
+
     if sample_weight is not None:
         sample_weight = np.asarray(sample_weight)
         weight = sample_weight[:, np.newaxis] if y_true.ndim == 2 else sample_weight
     else:
         weight = 1.0
-    
+
     numerator = np.sum(weight * (y_true - y_pred) ** 2, axis=0)
-    denominator = np.sum(weight * (y_true - np.average(y_true, axis=0, weights=sample_weight)) ** 2, axis=0)
-    
+    denominator = np.sum(
+        weight * (y_true - np.average(y_true, axis=0, weights=sample_weight)) ** 2, axis=0
+    )
+
     with np.errstate(divide="ignore", invalid="ignore"):
         score = 1 - (numerator / denominator)
-    
+
     # Handle edge cases
     if np.isscalar(score):
         if denominator == 0:
             score = 0.0
     else:
         score[denominator == 0] = 0.0
-    
+
     if multioutput == "raw_values":
         return score
     elif multioutput == "uniform_average":
@@ -353,9 +360,9 @@ def mean_squared_error(
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
     check_consistent_length(y_true, y_pred)
-    
+
     mse = np.average((y_true - y_pred) ** 2, axis=0, weights=sample_weight)
-    
+
     if squared:
         return np.mean(mse) if mse.ndim > 0 else float(mse)
     else:
@@ -386,9 +393,9 @@ def mean_absolute_error(
     y_true = np.asarray(y_true)
     y_pred = np.asarray(y_pred)
     check_consistent_length(y_true, y_pred)
-    
+
     mae = np.average(np.abs(y_true - y_pred), axis=0, weights=sample_weight)
-    
+
     return np.mean(mae) if mae.ndim > 0 else float(mae)
 
 
@@ -421,33 +428,33 @@ def roc_auc_score(
     """
     y_true = column_or_1d(y_true)
     y_score = np.asarray(y_score)
-    
+
     classes = np.unique(y_true)
     n_classes = len(classes)
-    
+
     if n_classes == 2:
         # Binary classification
         if y_score.ndim == 2:
             y_score = y_score[:, 1]
-        
+
         fpr, tpr, _ = roc_curve(y_true, y_score, pos_label=classes[1], sample_weight=sample_weight)
         return auc(fpr, tpr)
     else:
         # Multiclass
         if multi_class == "raise":
             raise ValueError("multi_class must be 'ovr' or 'ovo' for multiclass problems")
-        
+
         # Simple approximation for multiclass
         if y_score.ndim == 1:
             raise ValueError("y_score must be 2D for multiclass problems")
-        
+
         aucs = []
         for i, c in enumerate(classes):
             y_true_binary = (y_true == c).astype(int)
             y_score_binary = y_score[:, i]
             fpr, tpr, _ = roc_curve(y_true_binary, y_score_binary, sample_weight=sample_weight)
             aucs.append(auc(fpr, tpr))
-        
+
         if average == "macro":
             return np.mean(aucs)
         elif average == "weighted":
@@ -490,47 +497,47 @@ def roc_curve(
     """
     y_true = column_or_1d(y_true)
     y_score = column_or_1d(y_score)
-    
+
     if pos_label is None:
         pos_label = 1
-    
+
     # Make y_true binary
     y_true = (y_true == pos_label).astype(int)
-    
+
     # Sort by score
     desc_score_indices = np.argsort(y_score, kind="mergesort")[::-1]
     y_score = y_score[desc_score_indices]
     y_true = y_true[desc_score_indices]
-    
+
     if sample_weight is not None:
         sample_weight = sample_weight[desc_score_indices]
     else:
         sample_weight = np.ones_like(y_true)
-    
+
     # Compute TPR and FPR
     distinct_value_indices = np.where(np.diff(y_score))[0]
     threshold_idxs = np.r_[distinct_value_indices, y_true.size - 1]
-    
+
     tps = np.cumsum(y_true * sample_weight)[threshold_idxs]
     fps = np.cumsum((1 - y_true) * sample_weight)[threshold_idxs]
-    
+
     thresholds = y_score[threshold_idxs]
-    
+
     # Add endpoint
     tps = np.r_[0, tps]
     fps = np.r_[0, fps]
     thresholds = np.r_[thresholds[0] + 1, thresholds]
-    
+
     if fps[-1] <= 0:
         fpr = np.repeat(np.nan, fps.shape)
     else:
         fpr = fps / fps[-1]
-    
+
     if tps[-1] <= 0:
         tpr = np.repeat(np.nan, tps.shape)
     else:
         tpr = tps / tps[-1]
-    
+
     return fpr, tpr, thresholds
 
 
@@ -551,21 +558,21 @@ def auc(x: np.ndarray, y: np.ndarray) -> float:
     """
     x = np.asarray(x)
     y = np.asarray(y)
-    
+
     direction = 1
     if x[0] > x[-1]:
         # Reverse for decreasing x
         x = x[::-1]
         y = y[::-1]
         direction = -1
-    
+
     area = np.trapz(y, x) * direction
     return float(area)
 
 
 class MetricRegistry:
     """Registry for metrics with metadata."""
-    
+
     _metrics = {
         "accuracy": {"func": accuracy_score, "type": "classification", "requires_proba": False},
         "precision": {"func": precision_score, "type": "classification", "requires_proba": False},
@@ -576,14 +583,14 @@ class MetricRegistry:
         "mse": {"func": mean_squared_error, "type": "regression", "requires_proba": False},
         "mae": {"func": mean_absolute_error, "type": "regression", "requires_proba": False},
     }
-    
+
     @classmethod
     def get(cls, name: str) -> dict:
         """Get metric by name."""
         if name not in cls._metrics:
             raise ValueError(f"Unknown metric: {name}")
         return cls._metrics[name]
-    
+
     @classmethod
     def list_metrics(cls, metric_type: Optional[str] = None) -> list:
         """List available metrics."""

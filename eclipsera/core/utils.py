@@ -1,4 +1,5 @@
 """Core utility functions for Eclipsera."""
+
 import warnings
 from typing import Any, Optional, Union
 
@@ -8,7 +9,8 @@ from joblib import Parallel, delayed
 from numpy.random import RandomState
 
 from .exceptions import DataDimensionalityError
-from .validation import check_array, check_random_state as _check_random_state
+from .validation import check_array
+from .validation import check_random_state as _check_random_state
 
 
 def safe_sparse_dot(
@@ -83,7 +85,11 @@ def safe_indexing(X: Union[np.ndarray, list], indices: np.ndarray) -> Union[np.n
         return X[indices]
 
 
-def shuffle(*arrays: Any, random_state: Optional[Union[int, RandomState]] = None, n_samples: Optional[int] = None) -> Union[np.ndarray, tuple]:
+def shuffle(
+    *arrays: Any,
+    random_state: Optional[Union[int, RandomState]] = None,
+    n_samples: Optional[int] = None,
+) -> Union[np.ndarray, tuple]:
     """Shuffle arrays in a consistent way.
 
     Parameters
@@ -102,22 +108,28 @@ def shuffle(*arrays: Any, random_state: Optional[Union[int, RandomState]] = None
     """
     if len(arrays) == 0:
         return None
-    
+
     random_state = check_random_state(random_state)
     n = len(arrays[0])
-    
+
     if n_samples is None:
         n_samples = n
-    
+
     indices = random_state.permutation(n)[:n_samples]
-    
+
     if len(arrays) == 1:
         return safe_indexing(arrays[0], indices)
     else:
         return tuple(safe_indexing(arr, indices) for arr in arrays)
 
 
-def resample(*arrays: Any, replace: bool = True, n_samples: Optional[int] = None, random_state: Optional[Union[int, RandomState]] = None, stratify: Optional[np.ndarray] = None) -> Union[np.ndarray, tuple]:
+def resample(
+    *arrays: Any,
+    replace: bool = True,
+    n_samples: Optional[int] = None,
+    random_state: Optional[Union[int, RandomState]] = None,
+    stratify: Optional[np.ndarray] = None,
+) -> Union[np.ndarray, tuple]:
     """Resample arrays in a consistent way.
 
     Parameters
@@ -140,16 +152,17 @@ def resample(*arrays: Any, replace: bool = True, n_samples: Optional[int] = None
     """
     random_state = check_random_state(random_state)
     n = len(arrays[0])
-    
+
     if n_samples is None:
         n_samples = n
-    
+
     if stratify is not None:
         # Stratified resampling
         from collections import Counter
+
         class_counts = Counter(stratify)
         indices = []
-        
+
         for class_label in class_counts:
             class_indices = np.where(stratify == class_label)[0]
             n_class_samples = int(n_samples * len(class_indices) / n)
@@ -157,7 +170,7 @@ def resample(*arrays: Any, replace: bool = True, n_samples: Optional[int] = None
                 class_indices, size=n_class_samples, replace=replace
             )
             indices.extend(class_resampled)
-        
+
         indices = np.array(indices)
         random_state.shuffle(indices)
     else:
@@ -165,7 +178,7 @@ def resample(*arrays: Any, replace: bool = True, n_samples: Optional[int] = None
             indices = random_state.randint(0, n, size=n_samples)
         else:
             indices = random_state.permutation(n)[:n_samples]
-    
+
     if len(arrays) == 1:
         return safe_indexing(arrays[0], indices)
     else:
@@ -189,25 +202,25 @@ def compute_sample_weight(class_weight: Union[dict, str, None], y: np.ndarray) -
     """
     if class_weight is None:
         return np.ones(len(y), dtype=np.float64)
-    
+
     classes = np.unique(y)
-    
+
     if class_weight == "balanced":
         # Compute balanced class weights
         n_samples = len(y)
         n_classes = len(classes)
         class_weight_dict = {}
-        
+
         for c in classes:
             class_weight_dict[c] = n_samples / (n_classes * np.sum(y == c))
     elif isinstance(class_weight, dict):
         class_weight_dict = class_weight
     else:
         raise ValueError("class_weight must be dict, 'balanced', or None")
-    
+
     # Map class weights to samples
     sample_weight = np.array([class_weight_dict.get(c, 1.0) for c in y])
-    
+
     return sample_weight
 
 
@@ -228,15 +241,15 @@ def softmax(X: np.ndarray, copy: bool = True) -> np.ndarray:
     """
     # Always work with float arrays
     X = np.array(X, dtype=np.float64, copy=copy)
-    
+
     # Subtract max for numerical stability
     max_vals = np.max(X, axis=1, keepdims=True)
     X -= max_vals
-    
+
     np.exp(X, out=X)
     sum_exp = np.sum(X, axis=1, keepdims=True)
     X /= sum_exp
-    
+
     return X
 
 
@@ -256,11 +269,16 @@ def log_softmax(X: np.ndarray) -> np.ndarray:
     max_vals = np.max(X, axis=1, keepdims=True)
     X_shifted = X - max_vals
     log_sum_exp = np.log(np.sum(np.exp(X_shifted), axis=1, keepdims=True))
-    
+
     return X_shifted - log_sum_exp
 
 
-def log_loss(y_true: np.ndarray, y_prob: np.ndarray, eps: float = 1e-15, sample_weight: Optional[np.ndarray] = None) -> float:
+def log_loss(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    eps: float = 1e-15,
+    sample_weight: Optional[np.ndarray] = None,
+) -> float:
     """Log loss, aka logistic loss or cross-entropy loss.
 
     Parameters
@@ -281,17 +299,17 @@ def log_loss(y_true: np.ndarray, y_prob: np.ndarray, eps: float = 1e-15, sample_
     """
     # Clip probabilities to avoid log(0)
     y_prob = np.clip(y_prob, eps, 1 - eps)
-    
+
     if y_prob.ndim == 1:
         # Binary classification
         loss = -(y_true * np.log(y_prob) + (1 - y_true) * np.log(1 - y_prob))
     else:
         # Multiclass
         loss = -np.sum(y_true * np.log(y_prob), axis=1)
-    
+
     if sample_weight is not None:
         loss = loss * sample_weight
-    
+
     return np.mean(loss)
 
 
@@ -337,7 +355,9 @@ def parallel_helper(func: callable, iterable: Any, n_jobs: int = -1, **kwargs: A
     return Parallel(n_jobs=n_jobs, **kwargs)(delayed(func)(item) for item in iterable)
 
 
-def get_chunk_n_rows(row_bytes: int, max_n_rows: Optional[int] = None, working_memory: float = 1024.0) -> int:
+def get_chunk_n_rows(
+    row_bytes: int, max_n_rows: Optional[int] = None, working_memory: float = 1024.0
+) -> int:
     """Calculate how many rows can be processed in a chunk.
 
     Parameters
@@ -355,10 +375,10 @@ def get_chunk_n_rows(row_bytes: int, max_n_rows: Optional[int] = None, working_m
         Number of rows that can fit in memory.
     """
     chunk_n_rows = int(working_memory * 1024 * 1024 // row_bytes)
-    
+
     if max_n_rows is not None:
         chunk_n_rows = min(chunk_n_rows, max_n_rows)
-    
+
     return max(1, chunk_n_rows)
 
 
@@ -396,7 +416,7 @@ def check_scalar(
     """
     if not isinstance(x, target_type):
         raise TypeError(f"{name} must be an instance of {target_type}, got {type(x)}")
-    
+
     if min_val is not None or max_val is not None:
         if min_val is not None:
             if include_boundaries in ("left", "both"):
@@ -405,7 +425,7 @@ def check_scalar(
             else:
                 if x <= min_val:
                     raise ValueError(f"{name} must be > {min_val}, got {x}")
-        
+
         if max_val is not None:
             if include_boundaries in ("right", "both"):
                 if x > max_val:

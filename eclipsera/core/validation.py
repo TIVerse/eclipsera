@@ -3,6 +3,7 @@
 This module provides functions for validating and preprocessing input data,
 ensuring consistency and correctness across the framework.
 """
+
 import numbers
 import warnings
 from typing import Any, Literal, Optional, Union
@@ -89,7 +90,7 @@ def check_array(
         elif isinstance(accept_sparse, str):
             if array.format != accept_sparse:
                 array = array.asformat(accept_sparse)
-        
+
         # Check for finite values in sparse matrix
         if force_all_finite:
             if force_all_finite == "allow-nan":
@@ -99,13 +100,13 @@ def check_array(
             else:
                 if not np.isfinite(array.data).all():
                     raise ValueError("Input contains NaN or infinity.")
-        
+
         return array
-    
+
     # Handle pandas DataFrames/Series
     if isinstance(array, (pd.DataFrame, pd.Series)):
         array = array.values
-    
+
     # Convert to numpy array
     if not isinstance(array, np.ndarray):
         array = np.asarray(array, dtype=dtype if dtype != "numeric" else None)
@@ -114,7 +115,7 @@ def check_array(
             array = np.array(array, copy=True, order=order)
         elif order is not None and array.flags["C_CONTIGUOUS"] != (order == "C"):
             array = np.array(array, copy=False, order=order)
-    
+
     # Handle dtype conversion
     if dtype == "numeric":
         if array.dtype.kind == "O":
@@ -133,11 +134,11 @@ def check_array(
         else:
             if array.dtype != dtype:
                 array = array.astype(dtype)
-    
+
     # Check for finite values
     if force_all_finite:
         _assert_all_finite(array, allow_nan=force_all_finite == "allow-nan")
-    
+
     # Check dimensions
     if ensure_2d and array.ndim != 2:
         raise ValueError(
@@ -145,23 +146,23 @@ def check_array(
             f"Reshape your data using array.reshape(-1, 1) if your data has a single feature "
             f"or array.reshape(1, -1) if it contains a single sample."
         )
-    
+
     if not allow_nd and array.ndim > 2:
         raise ValueError(f"Found array with dim {array.ndim}. Expected <= 2.")
-    
+
     # Check minimum samples and features
     if array.ndim >= 1 and array.shape[0] < ensure_min_samples:
         raise ValueError(
             f"Found array with {array.shape[0]} sample(s) while a minimum of "
             f"{ensure_min_samples} is required."
         )
-    
+
     if array.ndim >= 2 and array.shape[1] < ensure_min_features:
         raise ValueError(
             f"Found array with {array.shape[1]} feature(s) while a minimum of "
             f"{ensure_min_features} is required."
         )
-    
+
     return array
 
 
@@ -241,7 +242,7 @@ def check_X_y(
         ensure_min_features=ensure_min_features,
         estimator=estimator,
     )
-    
+
     if multi_output:
         y = check_array(
             y,
@@ -268,9 +269,9 @@ def check_X_y(
                 allow_nd=False,
                 estimator=estimator,
             )
-    
+
     check_consistent_length(X, y)
-    
+
     return X, y
 
 
@@ -309,7 +310,7 @@ def column_or_1d(y: Any, warn: bool = False) -> np.ndarray:
     """
     y = np.asarray(y)
     shape = y.shape
-    
+
     if len(shape) == 1:
         return y
     if len(shape) == 2 and shape[1] == 1:
@@ -321,7 +322,7 @@ def column_or_1d(y: Any, warn: bool = False) -> np.ndarray:
                 stacklevel=2,
             )
         return y.ravel()
-    
+
     raise ValueError(f"y should be a 1d array, got an array of shape {shape} instead.")
 
 
@@ -350,10 +351,8 @@ def check_random_state(seed: Union[None, int, RandomState, np.random.Generator])
     if isinstance(seed, np.random.Generator):
         # Convert new-style generator to old-style RandomState
         return RandomState(seed.bit_generator._seed_seq.entropy)
-    
-    raise ValueError(
-        f"{seed!r} cannot be used to seed a numpy.random.RandomState instance"
-    )
+
+    raise ValueError(f"{seed!r} cannot be used to seed a numpy.random.RandomState instance")
 
 
 def _assert_all_finite(X: np.ndarray, allow_nan: bool = False) -> None:
@@ -395,10 +394,10 @@ def has_fit_parameter(estimator: Any, parameter: str) -> bool:
         Whether the parameter is supported.
     """
     import inspect
-    
+
     if not hasattr(estimator, "fit"):
         return False
-    
+
     fit_signature = inspect.signature(estimator.fit)
     return parameter in fit_signature.parameters
 
@@ -460,7 +459,7 @@ def type_of_target(y: Any) -> str:
         * 'unknown': can't determine the type.
     """
     y = np.asarray(y)
-    
+
     # Check for sparse
     if sp.issparse(y):
         if y.format != "csr":
@@ -470,7 +469,7 @@ def type_of_target(y: Any) -> str:
         if y.shape[1] == 1:
             return "binary" if len(np.unique(y.data)) <= 2 else "multiclass"
         return "multilabel-indicator"
-    
+
     # Dense array
     if y.ndim == 1:
         # Check if continuous or discrete
@@ -480,7 +479,7 @@ def type_of_target(y: Any) -> str:
         if len(unique_values) <= 2:
             return "binary"
         return "multiclass"
-    
+
     if y.ndim == 2:
         if y.shape[1] == 1:
             return type_of_target(y.ravel())
@@ -491,7 +490,7 @@ def type_of_target(y: Any) -> str:
         if np.issubdtype(y.dtype, np.floating):
             return "continuous-multioutput"
         return "multiclass-multioutput"
-    
+
     return "unknown"
 
 
@@ -521,14 +520,14 @@ def check_symmetric(array: np.ndarray, tol: float = 1e-10, raise_exception: bool
         if raise_exception:
             raise ValueError("Array must be square.")
         return False
-    
+
     if sp.issparse(array):
         diff = array - array.T
         is_sym = np.abs(diff.data).max() < tol
     else:
         is_sym = np.allclose(array, array.T, atol=tol)
-    
+
     if not is_sym and raise_exception:
         raise ValueError("Array is not symmetric.")
-    
+
     return is_sym

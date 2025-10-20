@@ -1,4 +1,5 @@
 """Ensemble methods including Random Forest and Gradient Boosting."""
+
 from typing import Optional
 
 import numpy as np
@@ -13,11 +14,11 @@ from .tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 class RandomForestClassifier(BaseClassifier):
     """A random forest classifier.
-    
+
     A random forest is a meta estimator that fits a number of decision tree
     classifiers on various sub-samples of the dataset and uses averaging to
     improve the predictive accuracy and control over-fitting.
-    
+
     Parameters
     ----------
     n_estimators : int, default=100
@@ -38,7 +39,7 @@ class RandomForestClassifier(BaseClassifier):
         The number of jobs to run in parallel. -1 means using all processors.
     random_state : int, RandomState instance or None, default=None
         Controls both the randomness of the bootstrapping and feature sampling.
-        
+
     Attributes
     ----------
     estimators_ : list of DecisionTreeClassifier
@@ -51,7 +52,7 @@ class RandomForestClassifier(BaseClassifier):
         Number of features seen during fit.
     feature_importances_ : ndarray of shape (n_features,)
         The impurity-based feature importances.
-        
+
     Examples
     --------
     >>> import numpy as np
@@ -64,7 +65,7 @@ class RandomForestClassifier(BaseClassifier):
     >>> clf.predict([[0.5, 0.5]])
     array([0])
     """
-    
+
     def __init__(
         self,
         n_estimators: int = 100,
@@ -86,30 +87,30 @@ class RandomForestClassifier(BaseClassifier):
         self.bootstrap = bootstrap
         self.n_jobs = n_jobs
         self.random_state = random_state
-    
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> "RandomForestClassifier":
         """Build a forest of trees from the training set (X, y).
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The training input samples.
         y : array-like of shape (n_samples,)
             The target values (class labels).
-            
+
         Returns
         -------
         self : RandomForestClassifier
             Fitted estimator.
         """
         X, y = check_X_y(X, y)
-        
+
         self.classes_ = np.unique(y)
         self.n_classes_ = len(self.classes_)
         self.n_features_in_ = X.shape[1]
-        
+
         random_state = check_random_state(self.random_state)
-        
+
         # Determine max_features
         if self.max_features == "sqrt":
             max_features = max(1, int(np.sqrt(self.n_features_in_)))
@@ -121,10 +122,10 @@ class RandomForestClassifier(BaseClassifier):
             max_features = max(1, int(self.max_features * self.n_features_in_))
         else:
             max_features = self.n_features_in_
-        
+
         # Create base estimators
         seeds = random_state.randint(0, 10000, size=self.n_estimators)
-        
+
         def _fit_tree(seed):
             tree = DecisionTreeClassifier(
                 criterion=self.criterion,
@@ -134,7 +135,7 @@ class RandomForestClassifier(BaseClassifier):
                 max_features=max_features,
                 random_state=seed,
             )
-            
+
             # Bootstrap sampling
             if self.bootstrap:
                 n_samples = X.shape[0]
@@ -144,51 +145,49 @@ class RandomForestClassifier(BaseClassifier):
                 tree.fit(X[indices], y[indices])
             else:
                 tree.fit(X, y)
-            
+
             return tree
-        
+
         # Fit trees in parallel
-        self.estimators_ = Parallel(n_jobs=self.n_jobs)(
-            delayed(_fit_tree)(seed) for seed in seeds
-        )
-        
+        self.estimators_ = Parallel(n_jobs=self.n_jobs)(delayed(_fit_tree)(seed) for seed in seeds)
+
         # Calculate feature importances
-        self.feature_importances_ = np.mean([
-            tree.feature_importances_ for tree in self.estimators_
-        ], axis=0)
-        
+        self.feature_importances_ = np.mean(
+            [tree.feature_importances_ for tree in self.estimators_], axis=0
+        )
+
         return self
-    
+
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Predict class probabilities for X.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The input samples.
-            
+
         Returns
         -------
         proba : ndarray of shape (n_samples, n_classes)
             The class probabilities of the input samples.
         """
         X = check_array(X)
-        
-        if not hasattr(self, 'estimators_'):
+
+        if not hasattr(self, "estimators_"):
             raise NotFittedError("This RandomForestClassifier instance is not fitted yet.")
-        
+
         # Average predictions from all trees
         all_proba = np.array([tree.predict_proba(X) for tree in self.estimators_])
         return np.mean(all_proba, axis=0)
-    
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Predict class for X.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The input samples.
-            
+
         Returns
         -------
         y : ndarray of shape (n_samples,)
@@ -200,7 +199,7 @@ class RandomForestClassifier(BaseClassifier):
 
 class RandomForestRegressor(BaseRegressor):
     """A random forest regressor.
-    
+
     Parameters
     ----------
     n_estimators : int, default=100
@@ -221,7 +220,7 @@ class RandomForestRegressor(BaseRegressor):
         The number of jobs to run in parallel.
     random_state : int, RandomState instance or None, default=None
         Controls the randomness of the estimator.
-        
+
     Attributes
     ----------
     estimators_ : list of DecisionTreeRegressor
@@ -231,7 +230,7 @@ class RandomForestRegressor(BaseRegressor):
     feature_importances_ : ndarray of shape (n_features,)
         The impurity-based feature importances.
     """
-    
+
     def __init__(
         self,
         n_estimators: int = 100,
@@ -253,28 +252,28 @@ class RandomForestRegressor(BaseRegressor):
         self.bootstrap = bootstrap
         self.n_jobs = n_jobs
         self.random_state = random_state
-    
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> "RandomForestRegressor":
         """Build a forest of trees from the training set (X, y).
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The training input samples.
         y : array-like of shape (n_samples,)
             The target values.
-            
+
         Returns
         -------
         self : RandomForestRegressor
             Fitted estimator.
         """
         X, y = check_X_y(X, y, y_numeric=True)
-        
+
         self.n_features_in_ = X.shape[1]
-        
+
         random_state = check_random_state(self.random_state)
-        
+
         # Determine max_features
         if self.max_features == "sqrt":
             max_features = max(1, int(np.sqrt(self.n_features_in_)))
@@ -286,9 +285,9 @@ class RandomForestRegressor(BaseRegressor):
             max_features = max(1, int(self.max_features * self.n_features_in_))
         else:
             max_features = self.n_features_in_
-        
+
         seeds = random_state.randint(0, 10000, size=self.n_estimators)
-        
+
         def _fit_tree(seed):
             tree = DecisionTreeRegressor(
                 criterion=self.criterion,
@@ -298,7 +297,7 @@ class RandomForestRegressor(BaseRegressor):
                 max_features=max_features,
                 random_state=seed,
             )
-            
+
             if self.bootstrap:
                 n_samples = X.shape[0]
                 indices = np.random.RandomState(seed).choice(
@@ -307,37 +306,35 @@ class RandomForestRegressor(BaseRegressor):
                 tree.fit(X[indices], y[indices])
             else:
                 tree.fit(X, y)
-            
+
             return tree
-        
-        self.estimators_ = Parallel(n_jobs=self.n_jobs)(
-            delayed(_fit_tree)(seed) for seed in seeds
+
+        self.estimators_ = Parallel(n_jobs=self.n_jobs)(delayed(_fit_tree)(seed) for seed in seeds)
+
+        self.feature_importances_ = np.mean(
+            [tree.feature_importances_ for tree in self.estimators_], axis=0
         )
-        
-        self.feature_importances_ = np.mean([
-            tree.feature_importances_ for tree in self.estimators_
-        ], axis=0)
-        
+
         return self
-    
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Predict regression target for X.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The input samples.
-            
+
         Returns
         -------
         y : ndarray of shape (n_samples,)
             The predicted values.
         """
         X = check_array(X)
-        
-        if not hasattr(self, 'estimators_'):
+
+        if not hasattr(self, "estimators_"):
             raise NotFittedError("This RandomForestRegressor instance is not fitted yet.")
-        
+
         # Average predictions from all trees
         all_predictions = np.array([tree.predict(X) for tree in self.estimators_])
         return np.mean(all_predictions, axis=0)
@@ -345,7 +342,7 @@ class RandomForestRegressor(BaseRegressor):
 
 class GradientBoostingClassifier(BaseClassifier):
     """Gradient Boosting for classification.
-    
+
     Parameters
     ----------
     n_estimators : int, default=100
@@ -362,7 +359,7 @@ class GradientBoostingClassifier(BaseClassifier):
         The fraction of samples to be used for fitting the individual base learners.
     random_state : int, RandomState instance or None, default=None
         Controls the randomness of the estimator.
-        
+
     Attributes
     ----------
     estimators_ : list of DecisionTreeRegressor
@@ -372,7 +369,7 @@ class GradientBoostingClassifier(BaseClassifier):
     n_classes_ : int
         The number of classes.
     """
-    
+
     def __init__(
         self,
         n_estimators: int = 100,
@@ -390,51 +387,51 @@ class GradientBoostingClassifier(BaseClassifier):
         self.min_samples_leaf = min_samples_leaf
         self.subsample = subsample
         self.random_state = random_state
-    
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> "GradientBoostingClassifier":
         """Fit the gradient boosting model.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The training input samples.
         y : array-like of shape (n_samples,)
             The target values.
-            
+
         Returns
         -------
         self : GradientBoostingClassifier
             Fitted estimator.
         """
         X, y = check_X_y(X, y)
-        
+
         self.classes_ = np.unique(y)
         self.n_classes_ = len(self.classes_)
         self.n_features_in_ = X.shape[1]
-        
+
         random_state = check_random_state(self.random_state)
-        
+
         # Convert labels to indices
         y_encoded = np.searchsorted(self.classes_, y)
-        
+
         if self.n_classes_ == 2:
             # Binary classification
             self.estimators_ = []
-            
+
             # Initialize with log odds
             pos_count = np.sum(y_encoded == 1)
             neg_count = len(y_encoded) - pos_count
             init_pred = np.log(pos_count / (neg_count + 1e-10))
             self.init_pred_ = init_pred
-            
+
             # Current predictions (in log odds space)
             f = np.full(len(y_encoded), init_pred)
-            
+
             for i in range(self.n_estimators):
                 # Compute gradients (negative gradient for gradient descent)
                 p = 1 / (1 + np.exp(-f))
                 residuals = y_encoded - p
-                
+
                 # Subsample
                 if self.subsample < 1.0:
                     n_samples = int(self.subsample * len(X))
@@ -444,7 +441,7 @@ class GradientBoostingClassifier(BaseClassifier):
                 else:
                     X_sub = X
                     residuals_sub = residuals
-                
+
                 # Fit tree to residuals
                 tree = DecisionTreeRegressor(
                     max_depth=self.max_depth,
@@ -453,33 +450,33 @@ class GradientBoostingClassifier(BaseClassifier):
                     random_state=random_state.randint(0, 10000),
                 )
                 tree.fit(X_sub, residuals_sub)
-                
+
                 # Update predictions
                 update = tree.predict(X)
                 f += self.learning_rate * update
-                
+
                 self.estimators_.append(tree)
         else:
             # Multiclass: one-vs-rest
             self.estimators_ = []
             self.init_pred_ = np.zeros(self.n_classes_)
-            
+
             for class_idx in range(self.n_classes_):
                 class_estimators = []
                 y_binary = (y_encoded == class_idx).astype(float)
-                
+
                 # Initialize
                 pos_count = np.sum(y_binary)
                 neg_count = len(y_binary) - pos_count
                 init_pred = np.log(pos_count / (neg_count + 1e-10))
                 self.init_pred_[class_idx] = init_pred
-                
+
                 f = np.full(len(y_binary), init_pred)
-                
+
                 for i in range(self.n_estimators):
                     p = 1 / (1 + np.exp(-f))
                     residuals = y_binary - p
-                    
+
                     if self.subsample < 1.0:
                         n_samples = int(self.subsample * len(X))
                         indices = random_state.choice(len(X), size=n_samples, replace=False)
@@ -488,7 +485,7 @@ class GradientBoostingClassifier(BaseClassifier):
                     else:
                         X_sub = X
                         residuals_sub = residuals
-                    
+
                     tree = DecisionTreeRegressor(
                         max_depth=self.max_depth,
                         min_samples_split=self.min_samples_split,
@@ -496,20 +493,20 @@ class GradientBoostingClassifier(BaseClassifier):
                         random_state=random_state.randint(0, 10000),
                     )
                     tree.fit(X_sub, residuals_sub)
-                    
+
                     update = tree.predict(X)
                     f += self.learning_rate * update
-                    
+
                     class_estimators.append(tree)
-                
+
                 self.estimators_.append(class_estimators)
-        
+
         return self
-    
+
     def _raw_predict(self, X: np.ndarray) -> np.ndarray:
         """Return raw predictions (before sigmoid/softmax)."""
         X = check_array(X)
-        
+
         if self.n_classes_ == 2:
             # Binary
             predictions = np.full(len(X), self.init_pred_)
@@ -523,25 +520,25 @@ class GradientBoostingClassifier(BaseClassifier):
                 for tree in self.estimators_[class_idx]:
                     predictions[:, class_idx] += self.learning_rate * tree.predict(X)
             return predictions
-    
+
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         """Predict class probabilities for X.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The input samples.
-            
+
         Returns
         -------
         proba : ndarray of shape (n_samples, n_classes)
             The class probabilities.
         """
-        if not hasattr(self, 'estimators_'):
+        if not hasattr(self, "estimators_"):
             raise NotFittedError("This GradientBoostingClassifier instance is not fitted yet.")
-        
+
         raw_predictions = self._raw_predict(X)
-        
+
         if self.n_classes_ == 2:
             proba_class1 = 1 / (1 + np.exp(-raw_predictions))
             return np.column_stack([1 - proba_class1, proba_class1])
@@ -549,15 +546,15 @@ class GradientBoostingClassifier(BaseClassifier):
             # Softmax
             exp_pred = np.exp(raw_predictions - np.max(raw_predictions, axis=1, keepdims=True))
             return exp_pred / np.sum(exp_pred, axis=1, keepdims=True)
-    
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Predict class for X.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The input samples.
-            
+
         Returns
         -------
         y : ndarray of shape (n_samples,)
@@ -569,7 +566,7 @@ class GradientBoostingClassifier(BaseClassifier):
 
 class GradientBoostingRegressor(BaseRegressor):
     """Gradient Boosting for regression.
-    
+
     Parameters
     ----------
     n_estimators : int, default=100
@@ -587,7 +584,7 @@ class GradientBoostingRegressor(BaseRegressor):
     random_state : int, RandomState instance or None, default=None
         Controls the randomness of the estimator.
     """
-    
+
     def __init__(
         self,
         n_estimators: int = 100,
@@ -605,39 +602,39 @@ class GradientBoostingRegressor(BaseRegressor):
         self.min_samples_leaf = min_samples_leaf
         self.subsample = subsample
         self.random_state = random_state
-    
+
     def fit(self, X: np.ndarray, y: np.ndarray) -> "GradientBoostingRegressor":
         """Fit the gradient boosting model.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             Training data.
         y : array-like of shape (n_samples,)
             Target values.
-            
+
         Returns
         -------
         self : GradientBoostingRegressor
             Fitted estimator.
         """
         X, y = check_X_y(X, y, y_numeric=True)
-        
+
         self.n_features_in_ = X.shape[1]
         random_state = check_random_state(self.random_state)
-        
+
         # Initialize with mean
         self.init_pred_ = np.mean(y)
-        
+
         # Current predictions
         f = np.full(len(y), self.init_pred_)
-        
+
         self.estimators_ = []
-        
+
         for i in range(self.n_estimators):
             # Compute residuals
             residuals = y - f
-            
+
             # Subsample
             if self.subsample < 1.0:
                 n_samples = int(self.subsample * len(X))
@@ -647,7 +644,7 @@ class GradientBoostingRegressor(BaseRegressor):
             else:
                 X_sub = X
                 residuals_sub = residuals
-            
+
             # Fit tree to residuals
             tree = DecisionTreeRegressor(
                 max_depth=self.max_depth,
@@ -656,35 +653,35 @@ class GradientBoostingRegressor(BaseRegressor):
                 random_state=random_state.randint(0, 10000),
             )
             tree.fit(X_sub, residuals_sub)
-            
+
             # Update predictions
             update = tree.predict(X)
             f += self.learning_rate * update
-            
+
             self.estimators_.append(tree)
-        
+
         return self
-    
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Predict regression target for X.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             The input samples.
-            
+
         Returns
         -------
         y : ndarray of shape (n_samples,)
             The predicted values.
         """
         X = check_array(X)
-        
-        if not hasattr(self, 'estimators_'):
+
+        if not hasattr(self, "estimators_"):
             raise NotFittedError("This GradientBoostingRegressor instance is not fitted yet.")
-        
+
         predictions = np.full(len(X), self.init_pred_)
         for tree in self.estimators_:
             predictions += self.learning_rate * tree.predict(X)
-        
+
         return predictions

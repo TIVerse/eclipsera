@@ -1,4 +1,5 @@
 """Sphinx configuration for Eclipsera documentation."""
+
 import os
 import sys
 from datetime import datetime

@@ -1,7 +1,8 @@
 """Feature selection utilities."""
+
+from ._rfe import RFE
 from ._univariate import SelectKBest, chi2, f_classif
 from ._variance import VarianceThreshold
-from ._rfe import RFE
 
 __all__ = [
     "SelectKBest",

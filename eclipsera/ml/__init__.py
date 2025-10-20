@@ -3,6 +3,7 @@
 This module contains implementations of classical machine learning algorithms
 including linear models, tree-based methods, ensemble methods, SVMs, and more.
 """
+
 from .ensemble import (
     GradientBoostingClassifier,
     GradientBoostingRegressor,

@@ -1,4 +1,5 @@
 """Scaling and normalization transformers."""
+
 from typing import Optional, Tuple
 
 import numpy as np
@@ -462,7 +463,7 @@ class Normalizer(BaseTransformer):
         if self.norm == "l1":
             norms = np.abs(X).sum(axis=1)
         elif self.norm == "l2":
-            norms = np.sqrt((X ** 2).sum(axis=1))
+            norms = np.sqrt((X**2).sum(axis=1))
         elif self.norm == "max":
             norms = np.abs(X).max(axis=1)
         else:

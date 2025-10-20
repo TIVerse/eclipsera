@@ -1,4 +1,5 @@
 """Principal Component Analysis."""
+
 from typing import Optional, Union
 
 import numpy as np
@@ -9,10 +10,10 @@ from ..core.validation import check_array
 
 class PCA(BaseTransformer):
     """Principal Component Analysis (PCA).
-    
+
     Linear dimensionality reduction using Singular Value Decomposition of the
     data to project it to a lower dimensional space.
-    
+
     Parameters
     ----------
     n_components : int, float or None, default=None
@@ -27,7 +28,7 @@ class PCA(BaseTransformer):
         Solver to use ('auto', 'full', 'randomized').
     random_state : int, RandomState instance or None, default=None
         Used when svd_solver == 'randomized'.
-        
+
     Attributes
     ----------
     components_ : ndarray of shape (n_components, n_features)
@@ -42,7 +43,7 @@ class PCA(BaseTransformer):
         Per-feature empirical mean, estimated from the training set.
     n_features_in_ : int
         Number of features seen during fit.
-        
+
     Examples
     --------
     >>> import numpy as np
@@ -55,7 +56,7 @@ class PCA(BaseTransformer):
     [0.99244289 0.00755711]
     >>> X_transformed = pca.transform(X)
     """
-    
+
     def __init__(
         self,
         n_components: Optional[Union[int, float]] = None,
@@ -67,45 +68,45 @@ class PCA(BaseTransformer):
         self.whiten = whiten
         self.svd_solver = svd_solver
         self.random_state = random_state
-    
+
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> "PCA":
         """Fit the model with X.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             Training data.
         y : Ignored
             Not used, present here for API consistency.
-            
+
         Returns
         -------
         self : PCA
             Fitted estimator.
         """
         X = check_array(X)
-        
+
         self.n_features_in_ = X.shape[1]
         n_samples = X.shape[0]
-        
+
         # Center the data
         self.mean_ = np.mean(X, axis=0)
         X_centered = X - self.mean_
-        
+
         # Perform SVD
         U, S, Vt = np.linalg.svd(X_centered, full_matrices=False)
-        
+
         # Flip signs for deterministic output
         U, Vt = self._svd_flip(U, Vt)
-        
+
         # Get components
         components = Vt
-        
+
         # Explained variance
-        explained_variance = (S ** 2) / (n_samples - 1)
+        explained_variance = (S**2) / (n_samples - 1)
         total_variance = explained_variance.sum()
         explained_variance_ratio = explained_variance / total_variance
-        
+
         # Determine number of components to keep
         if self.n_components is None:
             n_components = min(n_samples, self.n_features_in_)
@@ -115,78 +116,78 @@ class PCA(BaseTransformer):
             n_components = np.searchsorted(cumsum, self.n_components) + 1
         else:
             n_components = min(int(self.n_components), len(S))
-        
+
         # Store results
         self.components_ = components[:n_components]
         self.explained_variance_ = explained_variance[:n_components]
         self.explained_variance_ratio_ = explained_variance_ratio[:n_components]
         self.singular_values_ = S[:n_components]
         self.n_components_ = n_components
-        
+
         return self
-    
+
     def transform(self, X: np.ndarray) -> np.ndarray:
         """Apply dimensionality reduction to X.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             Data to transform.
-            
+
         Returns
         -------
         X_transformed : ndarray of shape (n_samples, n_components)
             Transformed data.
         """
         X = check_array(X)
-        
-        if not hasattr(self, 'components_'):
+
+        if not hasattr(self, "components_"):
             raise ValueError("PCA must be fitted before calling transform")
-        
+
         # Center the data
         X_centered = X - self.mean_
-        
+
         # Project onto components
         X_transformed = X_centered @ self.components_.T
-        
+
         if self.whiten:
             X_transformed /= np.sqrt(self.explained_variance_)
-        
+
         return X_transformed
-    
+
     def inverse_transform(self, X: np.ndarray) -> np.ndarray:
         """Transform data back to original space.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_components)
             Transformed data.
-            
+
         Returns
         -------
         X_original : ndarray of shape (n_samples, n_features)
             Data in original space.
         """
         X = check_array(X)
-        
-        if not hasattr(self, 'components_'):
+
+        if not hasattr(self, "components_"):
             raise ValueError("PCA must be fitted before calling inverse_transform")
-        
+
         if self.whiten:
             X = X * np.sqrt(self.explained_variance_)
-        
+
         return X @ self.components_ + self.mean_
-    
+
     def fit_transform(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
         """Fit the model with X and apply the dimensionality reduction.
-        
+
         Parameters
         ----------
         X : array-like of shape (n_samples, n_features)
             Training data.
         y : Ignored
             Not used, present here for API consistency.
-            
+
         Returns
         -------
         X_transformed : ndarray of shape (n_samples, n_components)
@@ -194,7 +195,7 @@ class PCA(BaseTransformer):
         """
         self.fit(X, y)
         return self.transform(X)
-    
+
     def _svd_flip(self, U: np.ndarray, V: np.ndarray) -> tuple:
         """Sign correction to ensure deterministic output."""
         max_abs_cols = np.argmax(np.abs(U), axis=0)
