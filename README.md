@@ -15,22 +15,31 @@
 ![Open Source Love](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red?style=for-the-badge)
 
 ---
-
 ## 🚀 Overview
 
-**Eclipsera** is a comprehensive machine learning framework built from scratch with 68 algorithms spanning classical ML, clustering, dimensionality reduction, manifold learning, AutoML, and explainability.
+> **Eclipsera** is a next-generation **Machine Learning framework** built entirely from scratch — featuring **68+ algorithms** across classical ML, clustering, dimensionality reduction, manifold learning, AutoML, and explainability.  
+> Designed for **researchers, developers, and data scientists**, Eclipsera unifies model training, evaluation, and interpretation in one powerful ecosystem.
 
-**Features:**
-- 🤖 **AutoML** — Automatic algorithm selection and optimization
-- 🔍 **Explainability** — Permutation importance, partial dependence, feature importance
-- 📊 **Supervised Learning** — 28 classification and regression algorithms
-- 🎯 **Clustering** — 7 algorithms including K-Means, DBSCAN, Spectral, Gaussian Mixture
-- 📉 **Dimensionality Reduction** — PCA, NMF, TruncatedSVD
-- 🗺️ **Manifold Learning** — t-SNE, Isomap, LLE
-- ⚙️ **Feature Selection** — Variance threshold, univariate selection, RFE
-- 🔧 **Preprocessing** — Scalers, imputers, encoders
-- 🔬 **Model Selection** — Cross-validation, hyperparameter search
-- 🔗 **Pipelines** — Composable ML workflows
+---
+
+### ✨ **Key Features**
+
+| 🧠 Category | 🚀 Highlights |
+|--------------|---------------|
+| **🤖 AutoML** | Automatic algorithm selection, model tuning, and optimization |
+| **🔍 Explainability** | Permutation importance, partial dependence, and feature importance analysis |
+| **📊 Supervised Learning** | 28 algorithms for classification and regression |
+| **🎯 Clustering** | 7 methods including K-Means, DBSCAN, Spectral, and Gaussian Mixture |
+| **📉 Dimensionality Reduction** | PCA, NMF, and TruncatedSVD |
+| **🗺️ Manifold Learning** | t-SNE, Isomap, and Locally Linear Embedding (LLE) |
+| **⚙️ Feature Selection** | Variance thresholding, univariate selection, recursive feature elimination (RFE) |
+| **🔧 Preprocessing** | Scalers, imputers, and encoders for robust data preparation |
+| **🔬 Model Selection** | Cross-validation and hyperparameter search with flexible strategies |
+| **🔗 Pipelines** | Composable ML workflows with reusable, modular components |
+
+---
+
+💡 *Eclipsera bridges classical and modern ML with an elegant, modular API — enabling you to prototype, train, and explain models faster than ever.*
 
 ---
 
