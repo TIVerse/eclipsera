@@ -2,11 +2,17 @@
 
 **A Modern Machine Learning Framework for Python**
 
-[![PyPI version](https://badge.fury.io/py/eclipsera.svg)](https://pypi.org/project/eclipsera/)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)]()
-[![Coverage](https://img.shields.io/badge/coverage-88%25-brightgreen.svg)]()
+[![PyPI version](https://img.shields.io/pypi/v/eclipsera?style=for-the-badge&logo=pypi&logoColor=white&label=PyPI%20Version)](https://pypi.org/project/eclipsera/)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/eclipsera?style=for-the-badge&color=orange&label=Downloads&logo=pypi)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=open-source-initiative&logoColor=white)](https://opensource.org/licenses/MIT)
+![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)
+![Coverage](https://img.shields.io/badge/Coverage-88%25-brightgreen?style=for-the-badge&logo=codecov&logoColor=white)
+[![Build](https://img.shields.io/github/actions/workflow/status/tiverse/eclipsera/ci.yml?style=for-the-badge&logo=github&label=Build)](https://github.com/tiverse/eclipsera/actions)
+[![Docs](https://img.shields.io/badge/Docs-Online-blueviolet?style=for-the-badge&logo=readthedocs&logoColor=white)](https://tiverse.github.io/eclipsera/)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/tiverse/eclipsera?style=for-the-badge&logo=codefactor&logoColor=white)](https://www.codefactor.io/repository/github/tiverse/eclipsera)
+![Typing](https://img.shields.io/badge/Type%20Checked-mypy-informational?style=for-the-badge&logo=python&logoColor=white)
+![Open Source Love](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red?style=for-the-badge)
 
 ---
 
