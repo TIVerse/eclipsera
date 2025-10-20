@@ -251,14 +251,13 @@ def confusion_matrix(
     # Build confusion matrix
     CM = np.zeros((n_labels, n_labels), dtype=np.int64 if sample_weight is None else np.float64)
     
-    for true_label, pred_label in zip(y_true, y_pred):
+    for idx, (true_label, pred_label) in enumerate(zip(y_true, y_pred)):
         if true_label in label_to_ind and pred_label in label_to_ind:
             i = label_to_ind[true_label]
             j = label_to_ind[pred_label]
             if sample_weight is None:
                 CM[i, j] += 1
             else:
-                idx = np.where((y_true == true_label) & (y_pred == pred_label))[0][0]
                 CM[i, j] += sample_weight[idx]
     
     # Normalize if requested
@@ -560,7 +559,7 @@ def auc(x: np.ndarray, y: np.ndarray) -> float:
         y = y[::-1]
         direction = -1
     
-    area = np.trapezoid(y, x) * direction
+    area = np.trapz(y, x) * direction
     return float(area)
 
 

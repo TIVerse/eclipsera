@@ -113,8 +113,9 @@ class GridSearchCV:
         else:
             cv = self.cv
         
-        # Determine if we should use stratified CV
-        if hasattr(self.estimator, 'classes_') or hasattr(self.estimator, '_estimator_type'):
+        # Determine if we should use stratified CV (only for classifiers)
+        is_classifier = getattr(self.estimator, '_estimator_type', None) == 'classifier'
+        if is_classifier:
             if isinstance(self.cv, int) or self.cv is None:
                 cv_splitter = StratifiedKFold(n_splits=cv if isinstance(cv, int) else 5)
             else:
@@ -155,8 +156,10 @@ class GridSearchCV:
                 # Score
                 if self.scoring is None:
                     score = estimator.score(X_test, y_test)
+                elif callable(self.scoring):
+                    score = self.scoring(estimator, X_test, y_test)
                 else:
-                    # For now, just use score method
+                    # Use default score method for now
                     score = estimator.score(X_test, y_test)
                 
                 scores.append(score)
@@ -350,8 +353,9 @@ class RandomizedSearchCV:
         else:
             cv = self.cv
         
-        # Determine if we should use stratified CV
-        if hasattr(self.estimator, 'classes_') or hasattr(self.estimator, '_estimator_type'):
+        # Determine if we should use stratified CV (only for classifiers)
+        is_classifier = getattr(self.estimator, '_estimator_type', None) == 'classifier'
+        if is_classifier:
             if isinstance(self.cv, int) or self.cv is None:
                 cv_splitter = StratifiedKFold(n_splits=cv if isinstance(cv, int) else 5)
             else:
@@ -392,7 +396,10 @@ class RandomizedSearchCV:
                 # Score
                 if self.scoring is None:
                     score = estimator.score(X_test, y_test)
+                elif callable(self.scoring):
+                    score = self.scoring(estimator, X_test, y_test)
                 else:
+                    # Use default score method for now
                     score = estimator.score(X_test, y_test)
                 
                 scores.append(score)

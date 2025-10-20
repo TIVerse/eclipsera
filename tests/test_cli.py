@@ -39,63 +39,70 @@ def test_cmd_info(monkeypatch):
     assert "Eclipsera version" in output
 
 
-def test_cmd_train(monkeypatch):
-    """Test train command."""
+def test_cmd_train_missing_file(monkeypatch):
+    """Test train command with missing data file."""
     import argparse
+    import tempfile
+    import os
     
-    captured_output = StringIO()
-    monkeypatch.setattr(sys, "stdout", captured_output)
+    # Create a temp file that doesn't exist
+    temp_path = os.path.join(tempfile.gettempdir(), "nonexistent_data.csv")
     
     args = argparse.Namespace(
-        config="config.yaml",
-        data="data.csv",
-        model="linear"
+        data=temp_path,
+        target="target",
+        task="classification",
+        output=None
     )
     
     exit_code = cmd_train(args)
     
-    assert exit_code == 0
-    output = captured_output.getvalue()
-    assert "Training functionality coming soon" in output
+    # Should fail with non-zero exit code for missing file
+    assert exit_code == 1
 
 
-def test_cmd_predict(monkeypatch):
-    """Test predict command."""
+def test_cmd_predict_missing_model(monkeypatch):
+    """Test predict command with missing model file."""
     import argparse
+    import tempfile
+    import os
     
-    captured_output = StringIO()
-    monkeypatch.setattr(sys, "stdout", captured_output)
+    # Create a temp file that doesn't exist
+    temp_model = os.path.join(tempfile.gettempdir(), "nonexistent_model.pkl")
+    temp_data = os.path.join(tempfile.gettempdir(), "nonexistent_data.csv")
     
     args = argparse.Namespace(
-        model="model.pkl",
-        data="data.csv",
-        output="predictions.csv"
+        model=temp_model,
+        data=temp_data,
+        output=None
     )
     
     exit_code = cmd_predict(args)
     
-    assert exit_code == 0
-    output = captured_output.getvalue()
-    assert "Prediction functionality coming soon" in output
+    # Should fail with non-zero exit code for missing model
+    assert exit_code == 1
 
 
-def test_cmd_evaluate(monkeypatch):
-    """Test evaluate command."""
+def test_cmd_evaluate_missing_files(monkeypatch):
+    """Test evaluate command with missing files."""
     import argparse
+    import tempfile
+    import os
     
-    captured_output = StringIO()
-    monkeypatch.setattr(sys, "stdout", captured_output)
+    # Create temp files that don't exist
+    temp_model = os.path.join(tempfile.gettempdir(), "nonexistent_model.pkl")
+    temp_data = os.path.join(tempfile.gettempdir(), "nonexistent_data.csv")
     
     args = argparse.Namespace(
-        model="model.pkl",
-        data="data.csv"
+        model=temp_model,
+        data=temp_data,
+        target="target"
     )
     
     exit_code = cmd_evaluate(args)
     
-    assert exit_code == 0
-    output = captured_output.getvalue()
-    assert "Evaluation functionality coming soon" in output
+    # Should fail with non-zero exit code for missing files
+    assert exit_code == 1
 
 
 def test_main_info_command(monkeypatch):

@@ -399,9 +399,10 @@ def cross_val_score(
         
         if scoring is None:
             score = estimator_clone.score(X_test, y_test)
+        elif callable(scoring):
+            score = scoring(estimator_clone, X_test, y_test)
         else:
-            # For now, just use score method
-            # TODO: Add support for different scoring functions
+            # Use default score method for now
             score = estimator_clone.score(X_test, y_test)
         
         scores.append(score)
@@ -470,12 +471,22 @@ def cross_validate(
         estimator_clone.fit(X_train, y_train)
         
         # Test score
-        test_score = estimator_clone.score(X_test, y_test)
+        if scoring is None:
+            test_score = estimator_clone.score(X_test, y_test)
+        elif callable(scoring):
+            test_score = scoring(estimator_clone, X_test, y_test)
+        else:
+            test_score = estimator_clone.score(X_test, y_test)
         test_scores.append(test_score)
         
         # Train score if requested
         if return_train_score:
-            train_score = estimator_clone.score(X_train, y_train)
+            if scoring is None:
+                train_score = estimator_clone.score(X_train, y_train)
+            elif callable(scoring):
+                train_score = scoring(estimator_clone, X_train, y_train)
+            else:
+                train_score = estimator_clone.score(X_train, y_train)
             train_scores.append(train_score)
     
     result = {
