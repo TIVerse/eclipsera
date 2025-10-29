@@ -14,10 +14,10 @@ jobs:
     name: Build Distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221915d270a0f01a286b07aebe09a
+      - uses: actions/checkout@v4
       
       - name: Set up Python
-        uses: actions/setup-python@f677139bbe7f9c59b41ba40a4c1b868d921f71e4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       
@@ -40,7 +40,7 @@ jobs:
           output-file: dist/sbom.spdx.json
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@65c4c4a1ddee5b72fca983c3450796440202063a
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
@@ -54,7 +54,7 @@ jobs:
       url: https://pypi.org/project/eclipsera/
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@65a9edc505f2cd0aa3fc9d2d5b5e0f0b69a4172d
+        uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
@@ -72,14 +72,14 @@ jobs:
     needs: publish
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@0ad4b8fadaa221915d270a0f01a286b07aebe09a
+      - uses: actions/checkout@v4
       
       - name: Extract version from tag
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
       
       - name: Download artifacts
-        uses: actions/download-artifact@65a9edc505f2cd0aa3fc9d2d5b5e0f0b69a4172d
+        uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
@@ -99,7 +99,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
       
       - name: Create Release
-        uses: softprops/action-gh-release@de2c0298943a6851330898a6386db8c6b0eaae14
+        uses: softprops/action-gh-release@v1
         with:
           files: dist/*
           body: ${{ steps.notes.outputs.NOTES }}
