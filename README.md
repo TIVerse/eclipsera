@@ -187,7 +187,7 @@ print(f"🎯 Pipeline Score: {pipe.score(X_test, y_test):.4f}")
 - **v1.1.0** - Performance optimizations with FastAlloc
 - **v1.0.0** - Initial stable release
 
-[📋 Full Changelog](https://github.com/tiverse/eclipsera/blob/main/versions/v1.2.0.md)
+[📋 Full Changelog](https://github.com/tiverse/eclipsera/blob/master/versions/v1.2.0.md)
 
 ---
 
@@ -239,8 +239,8 @@ If you use Eclipsera in your research, please cite:
 <div align="center">
 
 [![Documentation](https://img.shields.io/badge/Documentation-8b5cf6?style=flat-square&logo=readthedocs&logoColor=white)](https://tiverse.github.io/eclipsera/)
-[![Performance Guide](https://img.shields.io/badge/Performance_Guide-10b981?style=flat-square&logo=github&logoColor=white)](https://github.com/tiverse/eclipsera/blob/main/FASTALLOC_USAGE.md)
-[![Roadmap](https://img.shields.io/badge/Roadmap-f97316?style=flat-square&logo=github&logoColor=white)](https://github.com/tiverse/eclipsera/blob/main/milestone/ROADMAP_2.0.0.md)
+[![Performance Guide](https://img.shields.io/badge/Performance_Guide-10b981?style=flat-square&logo=github&logoColor=white)](https://github.com/tiverse/eclipsera/blob/master/FASTALLOC_USAGE.md)
+[![Roadmap](https://img.shields.io/badge/Roadmap-f97316?style=flat-square&logo=github&logoColor=white)](https://github.com/tiverse/eclipsera/blob/master/milestone/ROADMAP_2.0.0.md)
 [![Issues](https://img.shields.io/badge/Issues-ec4899?style=flat-square&logo=github&logoColor=white)](https://github.com/tiverse/eclipsera/issues)
 
 </div>
