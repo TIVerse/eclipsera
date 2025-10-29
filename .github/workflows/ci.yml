@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install black isort flake8 mypy
+          pip install black isort flake8 mypy bandit detect-secrets
           pip install -e ".[dev]"
       
       - name: Check code formatting with black
@@ -95,7 +95,7 @@ jobs:
       
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673
         with:
           files: ./coverage.xml
           flags: unittests
@@ -170,7 +170,7 @@ jobs:
         run: twine check dist/*
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
         with:
           name: dist
           path: dist/
