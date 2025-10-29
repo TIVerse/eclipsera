@@ -7,6 +7,14 @@ import numpy as np
 from ..core.utils import check_random_state
 from ..core.validation import check_array
 
+# Optional fastalloc support for object pooling
+try:
+    from fastalloc import Pool
+
+    _FASTALLOC_AVAILABLE = True
+except ImportError:
+    _FASTALLOC_AVAILABLE = False
+
 
 def train_test_split(
     *arrays,
@@ -390,23 +398,51 @@ def cross_val_score(
 
     scores = []
 
+    # Create estimator pool if fastalloc is available
+    est_pool = None
+    if _FASTALLOC_AVAILABLE:
+        try:
+            est_pool = Pool(
+                obj_type=type(estimator),
+                capacity=1,
+                reset_method="reset",
+                pre_initialize=True
+            )
+        except Exception:
+            # Fallback if pool creation fails
+            est_pool = None
+
     for train_idx, test_idx in cv.split(X, y):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
-        # Fit and score
-        estimator_clone = estimator.__class__(**estimator.get_params())
-        estimator_clone.fit(X_train, y_train)
+        # Use pooled estimator if available, otherwise create new
+        if est_pool is not None:
+            with est_pool.allocate() as estimator_clone:
+                estimator_clone.set_params(**estimator.get_params())
+                estimator_clone.fit(X_train, y_train)
 
-        if scoring is None:
-            score = estimator_clone.score(X_test, y_test)
-        elif callable(scoring):
-            score = scoring(estimator_clone, X_test, y_test)
+                if scoring is None:
+                    score = estimator_clone.score(X_test, y_test)
+                elif callable(scoring):
+                    score = scoring(estimator_clone, X_test, y_test)
+                else:
+                    score = estimator_clone.score(X_test, y_test)
+
+                scores.append(score)
         else:
-            # Use default score method for now
-            score = estimator_clone.score(X_test, y_test)
+            # Fallback to regular construction
+            estimator_clone = estimator.__class__(**estimator.get_params())
+            estimator_clone.fit(X_train, y_train)
 
-        scores.append(score)
+            if scoring is None:
+                score = estimator_clone.score(X_test, y_test)
+            elif callable(scoring):
+                score = scoring(estimator_clone, X_test, y_test)
+            else:
+                score = estimator_clone.score(X_test, y_test)
+
+            scores.append(score)
 
     return np.array(scores)
 
@@ -463,32 +499,71 @@ def cross_validate(
     test_scores = []
     train_scores = [] if return_train_score else None
 
+    # Create estimator pool if fastalloc is available
+    est_pool = None
+    if _FASTALLOC_AVAILABLE:
+        try:
+            est_pool = Pool(
+                obj_type=type(estimator),
+                capacity=1,
+                reset_method="reset",
+                pre_initialize=True
+            )
+        except Exception:
+            # Fallback if pool creation fails
+            est_pool = None
+
     for train_idx, test_idx in cv.split(X, y):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
-        # Clone and fit
-        estimator_clone = estimator.__class__(**estimator.get_params())
-        estimator_clone.fit(X_train, y_train)
+        # Use pooled estimator if available, otherwise create new
+        if est_pool is not None:
+            with est_pool.allocate() as estimator_clone:
+                estimator_clone.set_params(**estimator.get_params())
+                estimator_clone.fit(X_train, y_train)
 
-        # Test score
-        if scoring is None:
-            test_score = estimator_clone.score(X_test, y_test)
-        elif callable(scoring):
-            test_score = scoring(estimator_clone, X_test, y_test)
+                # Test score
+                if scoring is None:
+                    test_score = estimator_clone.score(X_test, y_test)
+                elif callable(scoring):
+                    test_score = scoring(estimator_clone, X_test, y_test)
+                else:
+                    test_score = estimator_clone.score(X_test, y_test)
+                test_scores.append(test_score)
+
+                # Train score if requested
+                if return_train_score:
+                    if scoring is None:
+                        train_score = estimator_clone.score(X_train, y_train)
+                    elif callable(scoring):
+                        train_score = scoring(estimator_clone, X_train, y_train)
+                    else:
+                        train_score = estimator_clone.score(X_train, y_train)
+                    train_scores.append(train_score)
         else:
-            test_score = estimator_clone.score(X_test, y_test)
-        test_scores.append(test_score)
+            # Fallback to regular construction
+            estimator_clone = estimator.__class__(**estimator.get_params())
+            estimator_clone.fit(X_train, y_train)
 
-        # Train score if requested
-        if return_train_score:
+            # Test score
             if scoring is None:
-                train_score = estimator_clone.score(X_train, y_train)
+                test_score = estimator_clone.score(X_test, y_test)
             elif callable(scoring):
-                train_score = scoring(estimator_clone, X_train, y_train)
+                test_score = scoring(estimator_clone, X_test, y_test)
             else:
-                train_score = estimator_clone.score(X_train, y_train)
-            train_scores.append(train_score)
+                test_score = estimator_clone.score(X_test, y_test)
+            test_scores.append(test_score)
+
+            # Train score if requested
+            if return_train_score:
+                if scoring is None:
+                    train_score = estimator_clone.score(X_train, y_train)
+                elif callable(scoring):
+                    train_score = scoring(estimator_clone, X_train, y_train)
+                else:
+                    train_score = estimator_clone.score(X_train, y_train)
+                train_scores.append(train_score)
 
     result = {
         "test_score": np.array(test_scores),

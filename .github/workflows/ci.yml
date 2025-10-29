@@ -8,9 +8,6 @@ on:
   pull_request:
     branches: [ master ]
 
-permissions:
-  contents: read
-
 jobs:
   lint:
     name: Lint and Type Check
@@ -98,7 +95,7 @@ jobs:
       
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
-        uses: codecov/codecov-action@e8b549ad0a7565bf0bc938421ac80913f6b2271d
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage.xml
           flags: unittests
@@ -173,7 +170,7 @@ jobs:
         run: twine check dist/*
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@65c4c4a1ddee5b72fca983c3450796440202063a
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/

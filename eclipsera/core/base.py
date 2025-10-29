@@ -178,6 +178,39 @@ class BaseEstimator(metaclass=ABCMeta):
         """
         self.__dict__.update(state)
 
+    def reset(self) -> "BaseEstimator":
+        """Reset the estimator by removing all fitted attributes.
+
+        This method removes all attributes that end with an underscore,
+        which by convention are fitted attributes created during fit().
+        This is useful for object pooling where estimators are reused.
+
+        Returns
+        -------
+        self : BaseEstimator
+            The reset estimator instance.
+
+        Examples
+        --------
+        >>> from eclipsera.ml.linear import LinearRegression
+        >>> X = [[1, 2], [3, 4]]
+        >>> y = [1, 2]
+        >>> model = LinearRegression()
+        >>> model.fit(X, y)
+        LinearRegression()
+        >>> hasattr(model, 'coef_')
+        True
+        >>> model.reset()
+        LinearRegression(...)
+        >>> hasattr(model, 'coef_')
+        False
+        """
+        # Remove all attributes ending with underscore (fitted attributes)
+        fitted_attrs = [k for k in self.__dict__.keys() if k.endswith("_")]
+        for attr in fitted_attrs:
+            delattr(self, attr)
+        return self
+
 
 def clone(estimator: BaseEstimator, safe: bool = True) -> BaseEstimator:
     """Construct a new unfitted estimator with the same parameters.

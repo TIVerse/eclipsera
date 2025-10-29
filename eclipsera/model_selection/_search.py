@@ -9,6 +9,14 @@ from ..core.utils import check_random_state
 from ..core.validation import check_array
 from ._split import KFold, StratifiedKFold
 
+# Optional fastalloc support for object pooling
+try:
+    from fastalloc import Pool
+
+    _FASTALLOC_AVAILABLE = True
+except ImportError:
+    _FASTALLOC_AVAILABLE = False
+
 
 class GridSearchCV:
     """Exhaustive search over specified parameter values for an estimator.
@@ -139,6 +147,20 @@ class GridSearchCV:
         best_params = None
         best_estimator = None
 
+        # Create estimator pool if fastalloc is available
+        est_pool = None
+        if _FASTALLOC_AVAILABLE:
+            try:
+                est_pool = Pool(
+                    obj_type=type(self.estimator),
+                    capacity=1,
+                    reset_method="reset",
+                    pre_initialize=True
+                )
+            except Exception:
+                # Fallback if pool creation fails
+                est_pool = None
+
         for params in self._get_param_iterator():
             if self.verbose > 0:
                 print(f"Fitting with params: {params}")
@@ -150,20 +172,35 @@ class GridSearchCV:
                 X_train, X_test = X[train_idx], X[test_idx]
                 y_train, y_test = y[train_idx], y[test_idx]
 
-                # Create and fit estimator
-                estimator = self.estimator.__class__(**{**self.estimator.get_params(), **params})
-                estimator.fit(X_train, y_train)
+                # Use pooled estimator if available, otherwise create new
+                if est_pool is not None:
+                    with est_pool.allocate() as estimator:
+                        estimator.set_params(**{**self.estimator.get_params(), **params})
+                        estimator.fit(X_train, y_train)
 
-                # Score
-                if self.scoring is None:
-                    score = estimator.score(X_test, y_test)
-                elif callable(self.scoring):
-                    score = self.scoring(estimator, X_test, y_test)
+                        # Score
+                        if self.scoring is None:
+                            score = estimator.score(X_test, y_test)
+                        elif callable(self.scoring):
+                            score = self.scoring(estimator, X_test, y_test)
+                        else:
+                            score = estimator.score(X_test, y_test)
+
+                        scores.append(score)
                 else:
-                    # Use default score method for now
-                    score = estimator.score(X_test, y_test)
+                    # Fallback to regular construction
+                    estimator = self.estimator.__class__(**{**self.estimator.get_params(), **params})
+                    estimator.fit(X_train, y_train)
 
-                scores.append(score)
+                    # Score
+                    if self.scoring is None:
+                        score = estimator.score(X_test, y_test)
+                    elif callable(self.scoring):
+                        score = self.scoring(estimator, X_test, y_test)
+                    else:
+                        score = estimator.score(X_test, y_test)
+
+                    scores.append(score)
 
             mean_score = np.mean(scores)
             std_score = np.std(scores)
@@ -379,6 +416,20 @@ class RandomizedSearchCV:
         best_params = None
         best_estimator = None
 
+        # Create estimator pool if fastalloc is available
+        est_pool = None
+        if _FASTALLOC_AVAILABLE:
+            try:
+                est_pool = Pool(
+                    obj_type=type(self.estimator),
+                    capacity=1,
+                    reset_method="reset",
+                    pre_initialize=True
+                )
+            except Exception:
+                # Fallback if pool creation fails
+                est_pool = None
+
         for params in self._sample_parameters(random_state):
             if self.verbose > 0:
                 print(f"Fitting with params: {params}")
@@ -390,20 +441,35 @@ class RandomizedSearchCV:
                 X_train, X_test = X[train_idx], X[test_idx]
                 y_train, y_test = y[train_idx], y[test_idx]
 
-                # Create and fit estimator
-                estimator = self.estimator.__class__(**{**self.estimator.get_params(), **params})
-                estimator.fit(X_train, y_train)
+                # Use pooled estimator if available, otherwise create new
+                if est_pool is not None:
+                    with est_pool.allocate() as estimator:
+                        estimator.set_params(**{**self.estimator.get_params(), **params})
+                        estimator.fit(X_train, y_train)
 
-                # Score
-                if self.scoring is None:
-                    score = estimator.score(X_test, y_test)
-                elif callable(self.scoring):
-                    score = self.scoring(estimator, X_test, y_test)
+                        # Score
+                        if self.scoring is None:
+                            score = estimator.score(X_test, y_test)
+                        elif callable(self.scoring):
+                            score = self.scoring(estimator, X_test, y_test)
+                        else:
+                            score = estimator.score(X_test, y_test)
+
+                        scores.append(score)
                 else:
-                    # Use default score method for now
-                    score = estimator.score(X_test, y_test)
+                    # Fallback to regular construction
+                    estimator = self.estimator.__class__(**{**self.estimator.get_params(), **params})
+                    estimator.fit(X_train, y_train)
 
-                scores.append(score)
+                    # Score
+                    if self.scoring is None:
+                        score = estimator.score(X_test, y_test)
+                    elif callable(self.scoring):
+                        score = self.scoring(estimator, X_test, y_test)
+                    else:
+                        score = estimator.score(X_test, y_test)
+
+                    scores.append(score)
 
             mean_score = np.mean(scores)
             std_score = np.std(scores)
