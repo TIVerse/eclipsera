@@ -30,6 +30,43 @@ extensions = [
     "nbsphinx",
 ]
 
+# Nitpicky mode for strict cross-reference checking
+nitpicky = True
+nitpick_ignore = [
+    ("py:class", "best_estimator"),
+    ("py:class", "best_score"),
+    ("py:class", "best_algorithm"),
+    ("py:class", "scores"),
+    ("py:class", "cluster_centers"),
+    ("py:class", "labels"),
+    ("py:class", "inertia"),
+    ("py:class", "n_iter"),
+    ("py:class", "core_sample_indices"),
+    ("py:class", "components"),
+    ("py:class", "n_features_in"),
+    ("py:class", "n_clusters"),
+    ("py:class", "mean"),
+    ("py:class", "scale"),
+    ("py:class", "var"),
+    ("py:class", "min"),
+    ("py:class", "data_min"),
+    ("py:class", "data_max"),
+    ("py:class", "data_range"),
+    ("py:class", "max_abs"),
+    ("py:class", "center"),
+    ("py:class", "classes"),
+    ("py:class", "categories"),
+    ("py:class", "statistics"),
+    ("py:class", "x"),
+    ("py:class", "cv_results"),
+    # Numpy type references
+    ("py:class", "array-like"),
+    ("py:class", "shape"),
+    ("py:class", "n_samples"),
+    ("py:class", "n_features"),
+    ("py:class", "ndarray"),
+]
+
 # Templates
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
@@ -75,6 +112,7 @@ autodoc_default_options = {
     "special-members": "__init__",
     "undoc-members": True,
     "exclude-members": "__weakref__",
+    "no-index": True,  # Avoid duplicate warnings
 }
 autodoc_typehints = "description"
 autodoc_typehints_description_target = "documented"

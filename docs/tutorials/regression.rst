@@ -1,5 +1,5 @@
 Regression Tutorial
-==================
+===================
 
 Coming soon: Comprehensive guide to regression in Eclipsera.
 

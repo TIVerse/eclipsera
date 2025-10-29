@@ -11,11 +11,45 @@ manifold learning, AutoML, and explainability.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Links:
+   :caption: User Guide:
 
-   GitHub Repository <https://github.com/TIVerse/eclipsera>
-   Changelog <https://github.com/TIVerse/eclipsera/blob/main/CHANGELOG.md>
-   Contributing <https://github.com/TIVerse/eclipsera/blob/main/CONTRIBUTING.md>
+   quickstart
+   installation
+   user_guide
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference:
+
+   api/automl
+   api/cluster
+   api/core
+   api/decomposition
+   api/explainability
+   api/feature_selection
+   api/manifold
+   api/ml
+   api/model_selection
+   api/pipeline
+   api/preprocessing
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorials:
+
+   tutorials/automl
+   tutorials/classification
+   tutorials/clustering
+   tutorials/explainability
+   tutorials/pipelines
+   tutorials/regression
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Development:
+
+   contributing
+   changelog
 
 Quick Example
 -------------

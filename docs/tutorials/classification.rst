@@ -1,5 +1,5 @@
 Classification Tutorial
-======================
+========================
 
 Coming soon: Comprehensive guide to classification in Eclipsera.
 
