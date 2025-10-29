@@ -1,7 +1,6 @@
 """Tests for decision tree algorithms."""
 
 import numpy as np
-import pytest
 
 from eclipsera.ml.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
@@ -121,7 +120,6 @@ def test_decision_tree_regressor_mae_criterion(regression_data):
     reg = DecisionTreeRegressor(criterion="mae", max_depth=5, random_state=42)
     reg.fit(X, y)
 
-    y_pred = reg.predict(X)
     score = reg.score(X, y)
     assert score > 0.3
 

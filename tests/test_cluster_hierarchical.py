@@ -90,7 +90,7 @@ def test_agglomerative_distance_threshold():
     X = np.random.randn(30, 2)
 
     clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=5.0, linkage="average")
-    labels = clustering.fit_predict(X)
+    clustering.fit_predict(X)
 
     assert hasattr(clustering, "n_clusters_")
     assert clustering.n_clusters_ >= 1
@@ -188,7 +188,7 @@ def test_agglomerative_distance_threshold_stops_early():
 
     # Low threshold should create more clusters
     clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.1, linkage="single")
-    labels = clustering.fit_predict(X)
+    clustering.fit_predict(X)
 
     # Should create multiple clusters
     assert clustering.n_clusters_ > 1

@@ -11,8 +11,6 @@ from typing import Any, Optional
 
 import numpy as np
 
-from .exceptions import NotFittedError, check_is_fitted
-
 
 class BaseEstimator(metaclass=ABCMeta):
     """Base class for all estimators in Eclipsera.
@@ -232,7 +230,7 @@ def clone(estimator: BaseEstimator, safe: bool = True) -> BaseEstimator:
     new_object = klass(**new_object_params)
 
     # Copy additional attributes if needed
-    params_set = new_object.get_params(deep=False)
+    new_object.get_params(deep=False)
 
     return new_object
 

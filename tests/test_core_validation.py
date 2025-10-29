@@ -3,7 +3,6 @@
 import numpy as np
 import pytest
 
-from eclipsera.core.exceptions import ValidationError
 from eclipsera.core.validation import (
     check_array,
     check_classification_targets,

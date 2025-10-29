@@ -1,7 +1,6 @@
 """Tests for ensemble methods."""
 
 import numpy as np
-import pytest
 
 from eclipsera.ml.ensemble import (
     GradientBoostingClassifier,
@@ -215,7 +214,6 @@ def test_gradient_boosting_regressor_learning_rate(regression_data):
     )
     reg.fit(X, y)
 
-    y_pred = reg.predict(X)
     score1 = reg.score(X, y)
 
     # Higher learning rate
@@ -224,7 +222,6 @@ def test_gradient_boosting_regressor_learning_rate(regression_data):
     )
     reg.fit(X, y)
 
-    y_pred = reg.predict(X)
     score2 = reg.score(X, y)
 
     # Both should produce reasonable fits (at least better than always predicting mean)

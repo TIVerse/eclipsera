@@ -1,7 +1,6 @@
 """Tests for K-Nearest Neighbors algorithms."""
 
 import numpy as np
-import pytest
 
 from eclipsera.ml.neighbors import KNeighborsClassifier, KNeighborsRegressor
 

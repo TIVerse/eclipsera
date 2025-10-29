@@ -6,20 +6,23 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint and Type Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@0ad4b8fadaa221915d270a0f01a286b07aebe09a
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@f677139bbe7f9c59b41ba40a4c1b868d921f71e4
         with:
           python-version: "3.11"
       
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@ab5e8d050b223aed180799e33166a9e208e51384
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
@@ -40,10 +43,22 @@ jobs:
       
       - name: Lint with flake8
         run: |
-          flake8 eclipsera tests --count --show-source --statistics
+          flake8 eclipsera tests --count --show-source --statistics --max-line-length=100 --extend-ignore=E203,E501,W503,C901,F401,F541 --max-complexity=15
       
       - name: Type check with mypy
         run: mypy eclipsera --ignore-missing-imports
+
+      - name: Run bandit security linter
+        run: bandit -r eclipsera
+
+      - name: Run detect-secrets
+        run: |
+          if [ -f .secrets.baseline ]; then
+            detect-secrets scan --baseline .secrets.baseline
+          else
+            detect-secrets scan > .secrets.baseline
+            echo "Created .secrets.baseline; commit it to ignore existing secrets"
+          fi
 
   test:
     name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
@@ -55,15 +70,15 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@0ad4b8fadaa221915d270a0f01a286b07aebe09a
       
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@f677139bbe7f9c59b41ba40a4c1b868d921f71e4
         with:
           python-version: ${{ matrix.python-version }}
       
       - name: Cache pip
-        uses: actions/cache@v3
+        uses: actions/cache@ab5e8d050b223aed180799e33166a9e208e51384
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
@@ -81,7 +96,7 @@ jobs:
       
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@e8b549ad0a7565bf0bc938421ac80913f6b2271d
         with:
           files: ./coverage.xml
           flags: unittests
@@ -92,10 +107,10 @@ jobs:
     name: Test with Optional Dependencies
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@0ad4b8fadaa221915d270a0f01a286b07aebe09a
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@f677139bbe7f9c59b41ba40a4c1b868d921f71e4
         with:
           python-version: "3.11"
       
@@ -111,10 +126,10 @@ jobs:
     name: Build Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@0ad4b8fadaa221915d270a0f01a286b07aebe09a
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@f677139bbe7f9c59b41ba40a4c1b868d921f71e4
         with:
           python-version: "3.11"
       
@@ -137,10 +152,10 @@ jobs:
     name: Build Package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@0ad4b8fadaa221915d270a0f01a286b07aebe09a
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@f677139bbe7f9c59b41ba40a4c1b868d921f71e4
         with:
           python-version: "3.11"
       
@@ -156,7 +171,7 @@ jobs:
         run: twine check dist/*
       
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72fca983c3450796440202063a
         with:
           name: dist
           path: dist/

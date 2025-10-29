@@ -1,7 +1,6 @@
 """Tests for support vector machines."""
 
 import numpy as np
-import pytest
 
 from eclipsera.ml.svm import SVC, SVR, LinearSVC, LinearSVR
 

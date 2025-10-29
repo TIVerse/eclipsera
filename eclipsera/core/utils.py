@@ -1,6 +1,5 @@
 """Core utility functions for Eclipsera."""
 
-import warnings
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -8,8 +7,6 @@ import scipy.sparse as sp
 from joblib import Parallel, delayed
 from numpy.random import RandomState
 
-from .exceptions import DataDimensionalityError
-from .validation import check_array
 from .validation import check_random_state as _check_random_state
 
 

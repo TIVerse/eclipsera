@@ -299,10 +299,9 @@ def test_encoders_with_missing_values():
 
 def test_label_encoder_empty_input():
     """Test LabelEncoder with empty input."""
-    le = LabelEncoder()
-    y = np.array([])
-
     # Should handle empty gracefully if it has at least 1 sample
     # Skip this test as empty arrays are invalid
+    # le = LabelEncoder()
+    # y = np.array([])
     # le.fit(y)
     # assert len(le.classes_) == 0

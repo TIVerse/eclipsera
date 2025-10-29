@@ -176,7 +176,7 @@ def test_mean_shift_cluster_count():
     X = np.random.randn(60, 5)
 
     clustering = MeanShift(bandwidth=1.5)
-    labels = clustering.fit_predict(X)
+    clustering.fit_predict(X)
 
     n_clusters = len(clustering.cluster_centers_)
 
@@ -216,7 +216,7 @@ def test_mean_shift_single_cluster():
     X = np.random.randn(40, 5) * 0.1
 
     clustering = MeanShift(bandwidth=1.0)
-    labels = clustering.fit_predict(X)
+    clustering.fit_predict(X)
 
     # Should identify as one or few clusters
     assert len(clustering.cluster_centers_) <= 5

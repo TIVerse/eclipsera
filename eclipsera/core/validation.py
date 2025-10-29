@@ -6,7 +6,7 @@ ensuring consistency and correctness across the framework.
 
 import numbers
 import warnings
-from typing import Any, Literal, Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -15,9 +15,6 @@ from numpy.random import RandomState
 
 from .exceptions import (
     DataConversionWarning,
-    DataDimensionalityError,
-    FeatureNamesError,
-    ValidationError,
 )
 
 

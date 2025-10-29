@@ -134,7 +134,6 @@ class SpectralClustering(BaseEstimator):
         X = check_array(X)
 
         self.n_features_in_ = X.shape[1]
-        n_samples = X.shape[0]
 
         # Compute affinity matrix
         self.affinity_matrix_ = self._compute_affinity_matrix(X)

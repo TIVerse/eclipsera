@@ -146,3 +146,4 @@ logs/
 *.h5
 *.onnx
 dev.md
+.secrets.baseline

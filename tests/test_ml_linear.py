@@ -1,7 +1,6 @@
 """Tests for linear models."""
 
 import numpy as np
-import pytest
 
 from eclipsera.ml.linear import (
     ElasticNet,

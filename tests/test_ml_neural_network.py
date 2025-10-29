@@ -1,7 +1,6 @@
 """Tests for Neural Network (MLP) algorithms."""
 
 import numpy as np
-import pytest
 
 from eclipsera.ml.neural_network import MLPClassifier, MLPRegressor
 

@@ -1,7 +1,7 @@
 """Hyperparameter search with cross-validation."""
 
 from itertools import product
-from typing import Any, Dict, Optional, Union
+from typing import Dict, Optional, Union
 
 import numpy as np
 

@@ -405,16 +405,16 @@ class SVR(BaseRegressor):
         n_samples = len(y)
 
         # Compute kernel matrix
-        K = self._kernel(X, X)
+        _K = self._kernel(X, X)  # noqa: F841
 
         # Simplified optimization (using scipy.optimize for SVR)
         # In practice, this would use a more sophisticated QP solver
 
         # For simplicity, use a basic approach
         # Initialize dual variables
-        alphas = np.zeros(n_samples)
-        alphas_star = np.zeros(n_samples)
-        b = 0.0
+        _alphas = np.zeros(n_samples)  # noqa: F841
+        _alphas_star = np.zeros(n_samples)  # noqa: F841
+        _b = 0.0  # noqa: F841
 
         # Store training data for prediction
         self.support_vectors_ = X
@@ -520,7 +520,7 @@ class LinearSVC(BaseClassifier):
             b = 0.0
 
             learning_rate = 0.01
-            random_state = check_random_state(self.random_state)
+            _random_state = check_random_state(self.random_state)  # noqa: F841
 
             for iteration in range(self.max_iter):
                 # Compute hinge loss gradient

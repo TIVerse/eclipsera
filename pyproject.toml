@@ -58,6 +58,8 @@ dev = [
     "furo>=2023.0.0",
     "nbsphinx>=0.8.0",
     "pre-commit>=2.17",
+    "bandit>=1.7.5",
+    "detect-secrets>=1.4.0",
 ]
 all = [
     "matplotlib>=3.3.0"

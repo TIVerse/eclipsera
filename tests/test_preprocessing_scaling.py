@@ -1,7 +1,6 @@
 """Tests for preprocessing scalers."""
 
 import numpy as np
-import pytest
 
 from eclipsera.preprocessing import (
     MaxAbsScaler,
@@ -82,7 +81,7 @@ def test_robust_scaler():
     X = np.array([[1, 2], [2, 3], [3, 4], [100, 200]])  # With outlier
 
     scaler = RobustScaler()
-    X_scaled = scaler.fit_transform(X)
+    scaler.fit_transform(X)
 
     # Check that median was used for centering
     assert hasattr(scaler, "center_")

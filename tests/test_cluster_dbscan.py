@@ -1,7 +1,6 @@
 """Tests for DBSCAN clustering."""
 
 import numpy as np
-import pytest
 
 from eclipsera.cluster import DBSCAN
 

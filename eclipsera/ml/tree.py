@@ -1,6 +1,5 @@
 """Decision tree algorithms for classification and regression."""
 
-import warnings
 from typing import Optional
 
 import numpy as np
@@ -222,7 +221,6 @@ class DecisionTreeClassifier(BaseClassifier):
         """Recursively grow the decision tree."""
         n_samples = len(y)
         n_samples_per_class = np.bincount(y, minlength=self.n_classes_)
-        predicted_class = np.argmax(n_samples_per_class)
 
         node = _Node(
             impurity=self._calculate_impurity(y),

@@ -5,7 +5,7 @@ spanning classical ML, clustering, dimensionality reduction, manifold learning,
 AutoML, and explainability.
 """
 
-from . import (
+from . import (  # noqa: F401
     automl,
     cli,
     cluster,
@@ -19,9 +19,9 @@ from . import (
     pipeline,
     preprocessing,
 )
+from .__version__ import __copyright__  # noqa: F401
 from .__version__ import (
     __author__,
-    __copyright__,
     __email__,
     __license__,
     __version__,

@@ -1,7 +1,6 @@
 """Tests for core metrics."""
 
 import numpy as np
-import pytest
 
 from eclipsera.core.metrics import (
     accuracy_score,

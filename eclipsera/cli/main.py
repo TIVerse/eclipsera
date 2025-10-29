@@ -1,7 +1,7 @@
 """Command-line interface for Eclipsera."""
 
 import argparse
-import pickle
+import pickle  # nosec B403
 import sys
 from pathlib import Path
 from typing import Optional, Tuple, Union
@@ -34,7 +34,7 @@ def main() -> int:
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Info command
-    info_parser = subparsers.add_parser("info", help="Show version and system information")
+    subparsers.add_parser("info", help="Show version and system information")
 
     # Train command
     train_parser = subparsers.add_parser("train", help="Train a model using AutoML")
@@ -70,6 +70,11 @@ def main() -> int:
         "--data", type=str, required=True, help="Input data path (.npy or .csv)"
     )
     predict_parser.add_argument(
+        "--confirm-unsafe-pickle",
+        action="store_true",
+        help="Confirm you trust the pickle model file (required for loading pickle models)",
+    )
+    predict_parser.add_argument(
         "--output",
         type=str,
         default="predictions.npy",
@@ -89,6 +94,11 @@ def main() -> int:
         type=str,
         required=True,
         help="Target column name (for CSV) or target file (.npy)",
+    )
+    evaluate_parser.add_argument(
+        "--confirm-unsafe-pickle",
+        action="store_true",
+        help="Confirm you trust the pickle model file (required for loading pickle models)",
     )
 
     # Parse arguments
@@ -187,8 +197,15 @@ def cmd_predict(args: argparse.Namespace) -> int:
     try:
         # Load model
         print(f"Loading model from {args.model}...")
+        if not getattr(args, "confirm_unsafe_pickle", False):
+            print(
+                "Error: Loading pickle models requires --confirm-unsafe-pickle flag. "
+                "Pickle files can execute arbitrary code. Only load models from trusted sources.",
+                file=sys.stderr,
+            )
+            return 1
         with open(args.model, "rb") as f:
-            model = pickle.load(f)
+            model = pickle.load(f)  # nosec B301
 
         # Load data
         print(f"Loading data from {args.data}...")
@@ -229,8 +246,15 @@ def cmd_evaluate(args: argparse.Namespace) -> int:
     try:
         # Load model
         print(f"Loading model from {args.model}...")
+        if not getattr(args, "confirm_unsafe_pickle", False):
+            print(
+                "Error: Loading pickle models requires --confirm-unsafe-pickle flag. "
+                "Pickle files can execute arbitrary code. Only load models from trusted sources.",
+                file=sys.stderr,
+            )
+            return 1
         with open(args.model, "rb") as f:
-            model = pickle.load(f)
+            model = pickle.load(f)  # nosec B301
 
         # Load data
         print(f"Loading data from {args.data}...")
@@ -280,10 +304,10 @@ def _load_data(
     path = Path(data_path)
 
     if path.suffix == ".npy":
-        X = np.load(data_path)
+        X = np.load(data_path, allow_pickle=False)
         if target is None:
             return X
-        y = np.load(target)
+        y = np.load(target, allow_pickle=False)
         return X, y
     elif path.suffix == ".csv":
         try:

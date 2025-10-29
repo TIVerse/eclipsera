@@ -49,3 +49,16 @@ repos:
           '--ignore-missing-imports',
           '--python-version=3.11'
         ]
+
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ["-r", "eclipsera"]
+        exclude: tests/
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']

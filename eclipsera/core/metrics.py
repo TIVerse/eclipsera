@@ -4,13 +4,11 @@ This module provides a comprehensive set of metrics for classification, regressi
 clustering, and ranking tasks.
 """
 
-from typing import Any, Literal, Optional, Union
+from typing import Any, Optional, Union
 
 import numpy as np
-import scipy.sparse as sp
-from scipy.special import xlogy
 
-from .validation import check_array, check_consistent_length, column_or_1d, type_of_target
+from .validation import check_consistent_length, column_or_1d
 
 
 def accuracy_score(

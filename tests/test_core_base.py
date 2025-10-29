@@ -4,9 +4,7 @@ import numpy as np
 import pytest
 
 from eclipsera.core.base import (
-    BaseClassifier,
     BaseEstimator,
-    BaseRegressor,
     clone,
 )
 

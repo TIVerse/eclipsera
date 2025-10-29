@@ -147,8 +147,6 @@ class TSNE(BaseEstimator):
 
     def _compute_low_dim_affinities(self, Y: np.ndarray) -> np.ndarray:
         """Compute low-dimensional affinities (q_ij) using Student t-distribution."""
-        n_samples = Y.shape[0]
-
         # Compute pairwise distances in low-dim space
         sum_Y = np.sum(Y**2, axis=1)
         num = 1 / (1 + sum_Y[:, np.newaxis] + sum_Y[np.newaxis, :] - 2 * Y @ Y.T)
